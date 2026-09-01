@@ -25,10 +25,365 @@
             --bg-light: #f8f9fa;
         }
 
+        html {
+            scroll-behavior: smooth;
+            -webkit-text-size-adjust: 100%;
+        }
+
         body {
-            background-color: var(--bg-light);
+            background: linear-gradient(180deg, #f4f7fb 0%, #f8f9fa 45%, #eef3f8 100%);
             font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
             padding-bottom: 50px;
+            min-width: 320px;
+            overflow-x: hidden;
+        }
+
+        .container-fluid {
+            width: 100%;
+        }
+
+        button, input, select, textarea {
+            font: inherit;
+        }
+
+        /* ================= RESPONSIVE / MOBILE POLISH ================= */
+        .hero-header {
+            position: relative;
+            overflow: hidden;
+            padding: clamp(1.25rem, 3vw, 2rem) clamp(.85rem, 3vw, 1.5rem);
+        }
+
+        .hero-header::after {
+            content: '';
+            position: absolute;
+            width: 240px;
+            height: 240px;
+            right: -90px;
+            top: -100px;
+            border-radius: 50%;
+            background: rgba(255,255,255,.07);
+            pointer-events: none;
+        }
+
+        .hero-header h1 {
+            font-size: clamp(1.45rem, 3vw, 2.15rem);
+            line-height: 1.2;
+        }
+
+        .hero-header h3 {
+            font-size: clamp(.95rem, 2vw, 1.35rem);
+            line-height: 1.4;
+        }
+
+        .header-widget {
+            max-width: 100%;
+            min-width: 190px;
+            vertical-align: top;
+        }
+
+        .navbar-custom {
+            padding: .45rem clamp(.65rem, 2vw, 1.5rem);
+            z-index: 1030;
+        }
+
+        .navbar-toggler {
+            border: 1px solid rgba(30,60,114,.2);
+            border-radius: 12px;
+            padding: .65rem .9rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            background: #fff;
+            box-shadow: 0 3px 12px rgba(0,0,0,.06);
+        }
+
+        .navbar-toggler:focus {
+            box-shadow: 0 0 0 .2rem rgba(13,110,253,.15);
+        }
+
+        .nav-pills-custom {
+            scrollbar-width: thin;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .nav-pills-custom .nav-link {
+            min-height: 42px;
+        }
+
+        .card-custom {
+            border-radius: clamp(12px, 2vw, 18px);
+            box-shadow: 0 8px 24px rgba(30, 60, 114, .07);
+            overflow: hidden;
+        }
+
+        .card-custom.p-4 {
+            padding: clamp(1rem, 2.5vw, 1.5rem) !important;
+        }
+
+        .section-header {
+            margin-top: 1.35rem;
+            margin-bottom: 1rem;
+            font-size: clamp(.95rem, 2vw, 1.05rem);
+        }
+
+        .form-control, .form-select {
+            min-height: 44px;
+            border-radius: 10px;
+        }
+
+        .btn {
+            border-radius: 10px;
+        }
+
+        .table-responsive {
+            border-radius: 10px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .table {
+            min-width: 760px;
+        }
+
+        .chart-container, .chart-container-large {
+            width: 100%;
+            height: clamp(250px, 42vw, 360px);
+            max-width: none;
+        }
+
+        .chart-container canvas, .chart-container-large canvas {
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        #viewerBarChart {
+            max-width: 100%;
+        }
+
+        .ticker-bar {
+            font-size: clamp(.72rem, 1.8vw, .9rem);
+        }
+
+        @media (min-width: 992px) {
+            .navbar-custom .collapse {
+                display: block !important;
+            }
+            .navbar-custom .navbar-toggler {
+                display: none;
+            }
+        }
+
+        @media (max-width: 991.98px) {
+            .navbar-custom {
+                margin-bottom: 1rem !important;
+            }
+            .nav-pills-custom {
+                gap: 7px;
+                padding: .35rem 0 .55rem;
+                overflow-x: auto;
+                overflow-y: hidden;
+                flex-wrap: nowrap !important;
+            }
+            .nav-pills-custom .nav-item {
+                flex: 0 0 auto;
+            }
+            .nav-pills-custom .nav-link {
+                width: auto;
+                padding: .6rem .9rem;
+                font-size: .82rem;
+            }
+            .header-widget {
+                margin: .25rem 0 !important;
+            }
+        }
+
+        @media (max-width: 767.98px) {
+            body {
+                padding-bottom: 25px;
+            }
+
+            .hero-header {
+                text-align: center;
+                padding: 1.1rem .8rem 1rem;
+            }
+
+            .hero-header .container-fluid {
+                padding-left: .25rem !important;
+                padding-right: .25rem !important;
+            }
+
+            .hero-header h1 {
+                margin-top: .2rem;
+                margin-bottom: .45rem !important;
+            }
+
+            .hero-header h1 i {
+                display: none;
+            }
+
+            .hero-header p {
+                font-size: .72rem;
+                line-height: 1.45;
+            }
+
+            .header-widget {
+                display: block;
+                width: 100%;
+                min-width: 0;
+                padding: .65rem .8rem;
+                margin: .45rem 0 0 !important;
+                border-radius: 12px;
+                text-align: left !important;
+            }
+
+            .header-widget .fs-5 {
+                font-size: 1rem !important;
+            }
+
+            .header-widget .fs-6 {
+                font-size: .82rem !important;
+            }
+
+            .ticker-bar {
+                padding: 7px 0;
+            }
+
+            .navbar-custom {
+                position: sticky;
+                top: 0;
+                padding: .4rem .55rem;
+                background: rgba(255,255,255,.96);
+                backdrop-filter: blur(12px);
+            }
+
+            .navbar-toggler {
+                margin: .2rem 0 !important;
+                width: 100%;
+                min-height: 46px;
+            }
+
+            .navbar-custom .container-fluid {
+                padding-left: 0 !important;
+                padding-right: 0 !important;
+            }
+
+            .nav-pills-custom .nav-link {
+                min-height: 44px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: .15rem;
+                border-radius: 11px;
+            }
+
+            .nav-pills-custom .nav-link i {
+                margin-right: .15rem !important;
+            }
+
+            .container-fluid.px-lg-5 {
+                padding-left: .7rem !important;
+                padding-right: .7rem !important;
+            }
+
+            .row.g-4, .row.g-3 {
+                --bs-gutter-x: .8rem;
+                --bs-gutter-y: .8rem;
+            }
+
+            .card-custom {
+                border-radius: 14px;
+            }
+
+            .card-custom h4 {
+                font-size: 1.05rem;
+                line-height: 1.35;
+            }
+
+            .card-custom h5 {
+                font-size: .96rem;
+                line-height: 1.35;
+            }
+
+            .lead {
+                font-size: .88rem;
+                line-height: 1.65;
+            }
+
+            .chart-container, .chart-container-large {
+                height: 280px;
+            }
+
+            #viewer-stats .card {
+                min-height: auto;
+            }
+
+            #viewer-stats .viewer-chart-box {
+                height: 250px;
+            }
+
+            .table {
+                font-size: .78rem;
+            }
+
+            .table td, .table th {
+                padding: .55rem .6rem;
+                white-space: nowrap;
+            }
+
+            .upload-box {
+                padding: 12px;
+            }
+
+            .upload-box .form-control {
+                font-size: .78rem;
+            }
+
+            form .btn-lg {
+                min-height: 48px;
+                font-size: .9rem;
+                line-height: 1.35;
+            }
+
+            #apps-script-status {
+                left: .7rem !important;
+                right: .7rem !important;
+                bottom: .65rem !important;
+                margin: 0 !important;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 420px) {
+            .hero-header h1 {
+                font-size: 1.3rem;
+            }
+
+            .hero-header h3 {
+                font-size: .88rem;
+            }
+
+            .header-widget {
+                padding: .55rem .7rem;
+            }
+
+            .nav-pills-custom .nav-link {
+                padding: .55rem .75rem;
+                font-size: .76rem;
+            }
+
+            .card-custom.p-4 {
+                padding: .9rem !important;
+            }
+
+            .chart-container, .chart-container-large {
+                height: 245px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                scroll-behavior: auto !important;
+                animation-duration: .01ms !important;
+                transition-duration: .01ms !important;
+            }
         }
 
         /* Hero Header Styling */
@@ -193,6 +548,17 @@
             margin: 0 auto;
         }
 
+        .viewer-chart-box {
+            position: relative;
+            width: 100%;
+            height: 300px;
+        }
+
+        .viewer-chart-box canvas {
+            width: 100% !important;
+            height: 100% !important;
+        }
+
         /* Upload Container Highlight */
         .upload-box {
             background-color: #f1f5f9;
@@ -201,7 +567,127 @@
             padding: 15px;
             text-align: center;
         }
-    </style>
+    
+/* =========================================================
+   FINAL UI POLISH — TYPOGRAPHY, GRID & RESPONSIVE SPACING
+   Menata ulang seluruh ukuran font, jarak, grid dan komponen
+   tanpa mengubah fungsi JavaScript.
+   ========================================================= */
+:root{
+  --ui-space:clamp(.75rem,1.5vw,1.25rem);
+  --ui-radius:clamp(12px,1.4vw,18px);
+  --ui-border:#e5eaf1;
+  --ui-text:#1f2937;
+  --ui-muted:#64748b;
+}
+
+body{font-size:clamp(.86rem,.16vw + .82rem,.96rem);line-height:1.55;color:var(--ui-text);}
+.container-fluid{padding-left:clamp(.75rem,2.2vw,2rem);padding-right:clamp(.75rem,2.2vw,2rem);}
+
+/* Skala tipografi konsisten */
+h1,.h1{font-size:clamp(1.45rem,2.1vw,2.15rem);line-height:1.18;letter-spacing:-.02em;}
+h2,.h2{font-size:clamp(1.25rem,1.7vw,1.75rem);line-height:1.25;}
+h3,.h3{font-size:clamp(1.1rem,1.4vw,1.4rem);line-height:1.3;}
+h4,.h4{font-size:clamp(1rem,1.15vw,1.2rem);line-height:1.35;}
+h5,.h5{font-size:clamp(.92rem,1vw,1.05rem);line-height:1.4;}
+h6,.h6{font-size:clamp(.84rem,.9vw,.95rem);line-height:1.4;}
+.small,.small-text{font-size:clamp(.73rem,.12vw + .7rem,.82rem)!important;line-height:1.5;}
+.lead{font-size:clamp(.84rem,.18vw + .8rem,1rem);line-height:1.6;}
+.text-muted{color:#64748b!important;}
+
+/* Header */
+.hero-header{padding:clamp(1.15rem,3vw,2rem) clamp(.9rem,2.5vw,1.8rem)!important;}
+.hero-header h1{margin-bottom:.4rem!important;font-weight:800;}
+.hero-header h3{font-size:clamp(.82rem,1.1vw,1.12rem)!important;margin-bottom:.8rem!important;}
+.header-widget{font-size:clamp(.7rem,.16vw + .66rem,.84rem);padding:.55rem .75rem;line-height:1.35;}
+.ticker-bar{font-size:clamp(.72rem,.15vw + .68rem,.86rem);padding:.5rem 0;}
+
+/* Navigasi */
+.navbar-custom{padding:.4rem clamp(.55rem,1.8vw,1.25rem)!important;}
+.nav-pills-custom{gap:.35rem!important;}
+.nav-pills-custom .nav-link{font-size:clamp(.74rem,.16vw + .7rem,.88rem)!important;font-weight:600;padding:.58rem clamp(.65rem,1.2vw,.95rem)!important;line-height:1.25;white-space:nowrap;}
+
+/* Grid Bootstrap lebih seimbang */
+.row{--bs-gutter-x:clamp(.8rem,1.6vw,1.35rem);--bs-gutter-y:clamp(.8rem,1.6vw,1.35rem);}
+.row.g-4,.row.g-3{--bs-gutter-x:clamp(.8rem,1.6vw,1.35rem);--bs-gutter-y:clamp(.8rem,1.6vw,1.35rem);}
+
+/* Semua card */
+.card-custom{border:1px solid var(--ui-border)!important;border-radius:var(--ui-radius)!important;box-shadow:0 6px 20px rgba(15,23,42,.055)!important;}
+.card-custom.p-4{padding:clamp(.9rem,1.8vw,1.35rem)!important;}
+.card-custom h4,.card-custom h5,.card-custom h6{font-weight:700;}
+.card-custom h5{margin-bottom:.65rem!important;}
+.card-custom .text-muted{font-size:clamp(.72rem,.15vw + .68rem,.82rem);}
+
+/* Form */
+.form-label{font-size:clamp(.74rem,.14vw + .7rem,.84rem)!important;font-weight:700!important;margin-bottom:.35rem;line-height:1.35;}
+.form-control,.form-select{min-height:42px;border-radius:10px!important;font-size:clamp(.78rem,.15vw + .74rem,.88rem)!important;padding:.55rem .75rem;}
+textarea.form-control{min-height:90px;}
+.form-text{font-size:.72rem;line-height:1.45;}
+.btn{font-size:clamp(.77rem,.14vw + .73rem,.88rem)!important;font-weight:700;min-height:40px;border-radius:10px!important;padding:.55rem .8rem;}
+form .btn-lg{min-height:46px;font-size:clamp(.82rem,.15vw + .78rem,.94rem)!important;}
+
+/* Tabel */
+.table-responsive{border:1px solid var(--ui-border);border-radius:12px;overflow-x:auto;}
+.table{font-size:clamp(.72rem,.14vw + .68rem,.84rem)!important;margin-bottom:0;}
+.table th{font-size:clamp(.7rem,.13vw + .67rem,.82rem)!important;font-weight:700;line-height:1.3;vertical-align:middle;}
+.table td,.table th{padding:clamp(.48rem,.75vw,.68rem) clamp(.5rem,.8vw,.75rem)!important;vertical-align:middle;}
+.table td{line-height:1.4;}
+.table thead th{white-space:nowrap;}
+
+/* Chart */
+.chart-container,.chart-container-large{height:clamp(230px,30vw,340px)!important;}
+#viewer-stats .viewer-chart-box{height:clamp(220px,28vw,320px)!important;}
+
+/* Status / badge */
+.badge{font-size:clamp(.68rem,.12vw + .65rem,.78rem)!important;padding:.38em .65em;line-height:1.2;}
+
+/* Desktop lebar: konten tetap nyaman dibaca */
+@media (min-width:1200px){
+  .container-fluid{max-width:1500px;margin-inline:auto;}
+}
+
+/* Tablet */
+@media (max-width:991.98px){
+  .hero-header{text-align:center;}
+  .header-widget{display:inline-flex;align-items:center;justify-content:center;max-width:100%;}
+  .card-custom.p-4{padding:1rem!important;}
+  .chart-container,.chart-container-large{height:280px!important;}
+}
+
+/* HP */
+@media (max-width:575.98px){
+  body{font-size:.84rem;}
+  .container-fluid{padding-left:.7rem;padding-right:.7rem;}
+  .hero-header{padding:1rem .75rem!important;}
+  .hero-header h1{font-size:1.3rem!important;}
+  .hero-header h3{font-size:.8rem!important;}
+  .header-widget{font-size:.69rem;padding:.48rem .62rem;}
+  .ticker-bar{font-size:.7rem;padding:.42rem 0;}
+  .nav-pills-custom{flex-wrap:nowrap!important;overflow-x:auto;padding-bottom:3px;scrollbar-width:thin;}
+  .nav-pills-custom .nav-link{font-size:.72rem!important;padding:.52rem .68rem!important;}
+  .card-custom{border-radius:12px!important;}
+  .card-custom.p-4{padding:.82rem!important;}
+  .card-custom h5{font-size:.88rem!important;}
+  .row{--bs-gutter-x:.7rem;--bs-gutter-y:.7rem;}
+  .form-control,.form-select{min-height:40px;font-size:.76rem!important;}
+  .form-label{font-size:.72rem!important;}
+  .btn{font-size:.75rem!important;min-height:40px;}
+  .table{font-size:.7rem!important;}
+  .table th{font-size:.69rem!important;}
+  .table td,.table th{padding:.45rem .5rem!important;}
+  .chart-container,.chart-container-large{height:245px!important;}
+}
+
+/* HP sangat kecil */
+@media (max-width:380px){
+  .hero-header h1{font-size:1.16rem!important;}
+  .hero-header h3{font-size:.75rem!important;}
+  .nav-pills-custom .nav-link{font-size:.68rem!important;padding:.48rem .58rem!important;}
+  .card-custom.p-4{padding:.7rem!important;}
+  .chart-container,.chart-container-large{height:225px!important;}
+}
+
+</style>
 </head>
 <body>
 
