@@ -1,0 +1,1800 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manajemen Terintegrasi RW 06 Griya Alam Sentul</title>
+    
+    <!-- Google Font Modern: Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        :root {
+            --primary-color: #1e3c72;
+            --secondary-color: #2a5298;
+            --accent-color: #0d6efd;
+            --bg-light: #f8f9fa;
+        }
+
+        body {
+            background-color: var(--bg-light);
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            padding-bottom: 50px;
+        }
+
+        /* Hero Header Styling */
+        .hero-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 2rem 1rem;
+            border-bottom: 4px solid #ffc107;
+        }
+
+        /* Realtime Widgets */
+        .header-widget {
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 8px 12px;
+            display: inline-block;
+            margin-bottom: 6px;
+        }
+
+        /* Running Text / Ticker Bar */
+        .ticker-bar {
+            background-color: #0f2547;
+            color: #ffc107;
+            padding: 8px 0;
+            font-weight: 600;
+            font-size: 0.9rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+        }
+
+        /* Modern Navbar Styling */
+        .navbar-custom {
+            background-color: #ffffff;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+            padding: 0.5rem 1rem;
+        }
+
+        .navbar-custom .container-fluid {
+            padding: 0;
+        }
+
+        .nav-pills-custom {
+            display: flex !important;
+            flex-wrap: nowrap !important;
+            width: 100%;
+            gap: 6px;
+        }
+
+        .nav-pills-custom .nav-item {
+            flex: 1 1 0px;
+            min-width: 0;
+        }
+
+        .nav-pills-custom .nav-link {
+            width: 100%;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: #495057;
+            font-weight: 600;
+            font-size: 0.825rem;
+            padding: 0.6rem 0.4rem;
+            border-radius: 8px;
+            transition: all 0.25s ease;
+            border: 1px solid transparent;
+        }
+
+        .nav-pills-custom .nav-link:hover {
+            background-color: #f1f3f5;
+            color: var(--primary-color);
+        }
+
+        .nav-pills-custom .nav-link.active {
+            background-color: var(--primary-color);
+            color: white;
+            box-shadow: 0 2px 6px rgba(30, 60, 114, 0.3);
+        }
+
+        @media (max-width: 991px) {
+            .nav-pills-custom {
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+            .nav-pills-custom .nav-item {
+                flex: 0 0 auto;
+                width: auto;
+            }
+            .nav-pills-custom .nav-link {
+                padding: 0.5rem 1rem;
+            }
+        }
+
+        /* Viewer & Online Cards */
+        .online-dot {
+            height: 10px;
+            width: 10px;
+            background-color: #20c997;
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 8px #20c997;
+            animation: pulse-dot 1.5s infinite;
+        }
+
+        /* Status Database Realtime */
+        #database-status {
+            transition: all 0.25s ease;
+        }
+
+        #database-status.status-online {
+            color: #20c997 !important;
+        }
+
+        #database-status.status-offline {
+            color: #ff6b6b !important;
+        }
+
+        #database-status.status-checking {
+            color: #ffc107 !important;
+        }
+
+        @keyframes pulse-dot {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(32, 201, 151, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(32, 201, 151, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(32, 201, 151, 0); }
+        }
+
+        /* Card & Forms Styling */
+        .card-custom {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            background: white;
+        }
+
+        .section-header {
+            border-left: 4px solid var(--accent-color);
+            padding-left: 12px;
+            margin-top: 25px;
+            margin-bottom: 20px;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #495057;
+            font-size: 0.875rem;
+        }
+
+        .chart-container {
+            position: relative;
+            max-width: 380px;
+            margin: 0 auto;
+        }
+
+        .chart-container-large {
+            position: relative;
+            max-width: 450px;
+            margin: 0 auto;
+        }
+
+        /* Upload Container Highlight */
+        .upload-box {
+            background-color: #f1f5f9;
+            border: 2px dashed #0d6efd;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HEADER UTAMA -->
+    <header class="hero-header">
+        <div class="container-fluid px-lg-5">
+            <div class="row align-items-center g-3">
+                <div class="col-lg-7 text-center text-lg-start">
+                    <div class="badge bg-warning text-dark mb-2 px-3 py-2 fw-bold" id="greeting-badge">
+                        <i class="fa-solid fa-sun me-1"></i> Selamat Datang!
+                    </div>
+                    <h1 class="fw-bold mb-1"><i class="fa-solid fa-city me-2"></i>Manajemen Terintegrasi</h1>
+                    <h3 class="fw-light mb-2">Rukun Warga 06 Komplek Griya Alam Sentul</h3>
+                    <p class="small mb-0 opacity-75">
+                        <i class="fa-solid fa-location-dot me-1"></i> Desa Kadumanggu, Kecamatan Babakan Madang, Kabupaten Bogor
+                    </p>
+                </div>
+
+                <div class="col-lg-5 text-center text-lg-end">
+                    <div class="header-widget text-start text-lg-end">
+                        <div class="small text-uppercase text-light opacity-75 fw-bold mb-1">
+                            <i class="fa-regular fa-calendar-days me-1"></i> Waktu Lokal
+                        </div>
+                        <div id="realtime-date" class="fw-bold fs-6 text-warning"></div>
+                        <div id="realtime-clock" class="fs-5 fw-bold font-monospace"></div>
+                    </div>
+
+                    <div class="header-widget text-start text-lg-end ms-lg-2">
+                        <div class="small text-uppercase text-light opacity-75 fw-bold mb-1">
+                            <i class="fa-solid fa-location-dot me-1"></i> Lokasi & Cuaca Realtime
+                        </div>
+                        <div id="user-location" class="fw-semibold small text-white">
+                            <i class="fa-solid fa-spinner fa-spin me-1"></i> Mendeteksi kota...
+                        </div>
+                        <div id="user-weather" class="fw-bold text-warning small mt-1">
+                            <i class="fa-solid fa-temperature-half me-1"></i> -- °C
+                        </div>
+                    </div>
+                    <div class="header-widget text-start text-lg-end ms-lg-2">
+                        <div class="small text-uppercase text-light opacity-75 fw-bold mb-1">
+                            <i class="fa-solid fa-database me-1"></i> Status Database
+                        </div>
+                        <div id="database-status" class="fw-bold small text-warning">
+                            <i class="fa-solid fa-spinner fa-spin me-1"></i> Menghubungkan...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- RUNNING TEXT MOTIVASI KERUKUNAN WARGA -->
+    <div class="ticker-bar">
+        <div class="container-fluid px-lg-5">
+            <marquee behavior="scroll" direction="left" scrollamount="6" onmouseover="this.stop();" onmouseout="this.start();">
+                <i class="fa-solid fa-quote-left me-2"></i>
+                <span id="quote-text">Kerukunan warga adalah fondasi keharmonisan lingkungan RW 06 Griya Alam Sentul.</span>
+                <i class="fa-solid fa-quote-right ms-2 me-4"></i>
+                <span class="badge bg-primary text-white me-2">Info Warga</span>
+                Mari jaga kebersihan, keamanan, dan tali silaturahmi antar sesama tetangga.
+            </marquee>
+        </div>
+    </div>
+
+    <!-- NAVBAR INTEGRASI -->
+    <nav class="navbar navbar-expand-lg navbar-custom sticky-top mb-4">
+        <div class="container-fluid px-lg-5">
+            <button class="navbar-toggler w-100 my-2" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span> Menu Navigasi RW 06
+            </button>
+            <div class="collapse navbar-collapse w-100" id="navbarNav">
+                <ul class="nav nav-pills nav-pills-custom my-2 my-lg-0" id="mainTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="home-tab" data-bs-toggle="pill" data-bs-target="#home" type="button"><i class="fa-solid fa-house me-1"></i> Home</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="kalender-tab" data-bs-toggle="pill" data-bs-target="#kalender" type="button"><i class="fa-solid fa-calendar-days me-1"></i> Agenda</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="berita-tab" data-bs-toggle="pill" data-bs-target="#berita" type="button"><i class="fa-solid fa-newspaper me-1"></i> Berita</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="viewer-tab" data-bs-toggle="pill" data-bs-target="#viewer-stats" type="button" onclick="renderViewerChart()"><i class="fa-solid fa-chart-simple me-1"></i> Viewer Realtime</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="rw-tab" data-bs-toggle="pill" data-bs-target="#rw-total" type="button" onclick="loadChartTotalRW()"><i class="fa-solid fa-chart-line me-1"></i> Total RW 06</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="rt01-tab" data-bs-toggle="pill" data-bs-target="#rt01" type="button" onclick="loadChartRT('RT01')"><i class="fa-solid fa-users me-1"></i> RT 01</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="rt02-tab" data-bs-toggle="pill" data-bs-target="#rt02" type="button" onclick="loadChartRT('RT02')"><i class="fa-solid fa-users me-1"></i> RT 02</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="rt03-tab" data-bs-toggle="pill" data-bs-target="#rt03" type="button" onclick="loadChartRT('RT03')"><i class="fa-solid fa-users me-1"></i> RT 03</button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- KONTEN TAB -->
+    <div class="container-fluid px-lg-5">
+        <div class="tab-content" id="mainTabContent">
+
+            <!-- 1. HOME -->
+            <div class="tab-pane fade show active" id="home" role="tabpanel">
+                <div class="card card-custom p-4 text-center">
+                    <div class="py-4">
+                        <i class="fa-solid fa-building-user fa-4x text-primary mb-3"></i>
+                        <h2 class="fw-bold">Selamat Datang!</h2>
+                        <p class="text-muted lead mx-auto" style="max-width: 750px;">
+                            Ini adalah aplikasi warga komplek Griya Alam Sentul, Rukun Warga 06. Sistem terpadu untuk pendataan warga, pengunggahan dokumen KK ke Google Drive, informasi agenda kegiatan, serta grafik demografi kependudukan di wilayah RT 01, RT 02, dan RT 03.
+                        </p>
+                    </div>
+                    <div class="row g-3 mt-2">
+                        <div class="col-md-4">
+                            <div class="p-3 border rounded bg-light">
+                                <i class="fa-solid fa-id-card fa-2x text-primary mb-2"></i>
+                                <h5>Pendataan Digital</h5>
+                                <small class="text-muted">Form terstruktur untuk mempermudah Ketua RT mendata anggota keluarga warga beserta lampiran KK.</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="p-3 border rounded bg-light">
+                                <i class="fa-solid fa-cloud-arrow-up fa-2x text-success mb-2"></i>
+                                <h5>Penyimpanan Cloud</h5>
+                                <small class="text-muted">Setiap berkas KK/Foto KK terunggah langsung secara terintegrasi ke Google Drive aman RW 06.</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="p-3 border rounded bg-light">
+                                <i class="fa-solid fa-bullhorn fa-2x text-warning mb-2"></i>
+                                <h5>Informasi Terpusat</h5>
+                                <small class="text-muted">Ketua RW dan warga dapat melihat jadwal kegiatan serta berita lingkungan secara real-time.</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- NAVBAR VIEWER & STATUS ONLINE REALTIME -->
+            <div class="tab-pane fade" id="viewer-stats" role="tabpanel">
+                <div class="row g-4">
+                    <div class="col-lg-8">
+                        <div class="card card-custom p-4">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div>
+                                    <h5 class="fw-bold mb-0 text-primary"><i class="fa-solid fa-chart-column me-2"></i>Navbar Viewer - Pengunjung Realtime</h5>
+                                    <small class="text-muted">Pantauan riwayat jumlah pembuka aplikasi dari waktu ke waktu</small>
+                                </div>
+                                <span class="badge bg-danger animate-pulse"><i class="fa-solid fa-circle me-1"></i> LIVE UPDATE</span>
+                            </div>
+                            <div style="height: 300px;">
+                                <canvas id="viewerBarChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4">
+                        <div class="card card-custom p-4">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="fw-bold mb-0 text-primary"><i class="fa-solid fa-users-viewfinder me-2"></i>Sedang Online</h5>
+                                <span class="badge bg-success" id="active-user-count">4 Warga</span>
+                            </div>
+                            <p class="small text-muted mb-3">Daftar warga/pengurus yang aktif mengakses portal saat ini:</p>
+                            <ul class="list-group list-group-flush small" id="online-users-list">
+                                <!-- Dynamic Render Online Users -->
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. KALENDER AGENDA -->
+            <div class="tab-pane fade" id="kalender" role="tabpanel">
+                <div class="card card-custom p-4">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+                        <h4 class="fw-bold mb-0"><i class="fa-regular fa-calendar-check text-primary me-2"></i>Kalender Agenda Kegiatan RW. 06</h4>
+                        <button class="btn btn-sm btn-outline-primary" type="button" onclick="loadAgendaBerita()">
+                            <i class="fa-solid fa-arrows-rotate me-1"></i>Refresh
+                        </button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Tanggal</th>
+                                    <th>Waktu</th>
+                                    <th>Kegiatan</th>
+                                    <th>Lokasi</th>
+                                    <th>Keterangan</th>
+                                </tr>
+                            </thead>
+                            <tbody id="agenda-list">
+                                <tr><td colspan="5" class="text-center text-muted">
+                                    <i class="fa-solid fa-spinner fa-spin me-2"></i>Memuat agenda...
+                                </td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. POJOK BERITA -->
+            <div class="tab-pane fade" id="berita" role="tabpanel">
+                <div class="card card-custom p-4">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+                        <h4 class="fw-bold mb-0"><i class="fa-solid fa-newspaper text-primary me-2"></i>Pojok Berita Rukun Warga 06</h4>
+                        <button class="btn btn-sm btn-outline-primary" type="button" onclick="loadAgendaBerita()">
+                            <i class="fa-solid fa-arrows-rotate me-1"></i>Refresh
+                        </button>
+                    </div>
+                    <div class="row g-4" id="berita-list">
+                        <div class="col-12 text-center text-muted">
+                            <i class="fa-solid fa-spinner fa-spin me-2"></i>Memuat berita...
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. TOTAL WARGA RW. 06 -->
+            <div class="tab-pane fade" id="rw-total" role="tabpanel">
+                <div class="row g-4 mb-4">
+                    <div class="col-md-3">
+                        <div class="card card-custom p-3 text-center bg-primary text-white">
+                            <h6>Total Warga RW 06</h6>
+                            <h2 class="fw-bold id-total-warga">0</h2>
+                            <small>Jiwa Terdaftar</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card card-custom p-3 text-center border-start border-4 border-primary">
+                            <h6>RT 01</h6>
+                            <h3 class="fw-bold text-primary">0 Jiwa</h3><small class="text-muted">0 Kepala Keluarga</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card card-custom p-3 text-center border-start border-4 border-success">
+                            <h6>RT 02</h6>
+                            <h3 class="fw-bold text-success">0 Jiwa</h3><small class="text-muted">0 Kepala Keluarga</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card card-custom p-3 text-center border-start border-4 border-warning">
+                            <h6>RT 03</h6>
+                            <h3 class="fw-bold text-warning">0 Jiwa</h3><small class="text-muted">0 Kepala Keluarga</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card card-custom p-4">
+                    <h5 class="fw-bold text-center mb-3"><i class="fa-solid fa-chart-pie text-primary me-2"></i>Grafik Akumulasi Demografi RW. 06</h5>
+                    <div class="chart-container-large">
+                        <canvas id="chart-TotalRW"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. WARGA RT 01 -->
+            <div class="tab-pane fade" id="rt01" role="tabpanel">
+                <div class="row g-4 mb-4">
+                    <div class="col-lg-5">
+                        <div class="card card-custom p-4 h-100">
+                            <h5 class="fw-bold text-center mb-3"><i class="fa-solid fa-chart-pie text-primary me-2"></i>Demografi Warga RT. 01</h5>
+                            <div class="chart-container">
+                                <canvas id="chart-RT01"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-7">
+                        <div class="card card-custom p-4">
+                            <h5 class="fw-bold text-primary mb-1"><i class="fa-solid fa-pen-to-square me-2"></i>Form Pendataan Warga RT. 01</h5>
+                            <p class="text-muted small">Diisi oleh Ketua RT 01 untuk pendaftaran warga baru/pembaruan data.</p>
+                            <form id="form-RT01" onsubmit="simpanData(event, 'RT 01')">
+                                <!-- Dynamic Form Rendered Below -->
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TABEL DASHBOARD RT 01 -->
+                <div class="card card-custom p-4">
+                    <h5 class="fw-bold text-primary mb-3"><i class="fa-solid fa-table me-2"></i>Data Terdaftar Warga RT. 01</h5>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped align-middle">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>No</th>
+                                    <th>Kepala Keluarga</th>
+                                    <th>No. WA Suami</th>
+                                    <th>Istri</th>
+                                    <th>Alamat</th>
+                                    <th>Status KTP</th>
+                                    <th>Dokumen KK (Drive)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-RT01">
+                                <tr><td colspan="7" class="text-center text-muted">Memuat data...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 6. WARGA RT 02 -->
+            <div class="tab-pane fade" id="rt02" role="tabpanel">
+                <div class="row g-4 mb-4">
+                    <div class="col-lg-5">
+                        <div class="card card-custom p-4 h-100">
+                            <h5 class="fw-bold text-center mb-3"><i class="fa-solid fa-chart-pie text-primary me-2"></i>Demografi Warga RT. 02</h5>
+                            <div class="chart-container">
+                                <canvas id="chart-RT02"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-7">
+                        <div class="card card-custom p-4">
+                            <h5 class="fw-bold text-primary mb-1"><i class="fa-solid fa-pen-to-square me-2"></i>Form Pendataan Warga RT. 02</h5>
+                            <p class="text-muted small">Diisi oleh Ketua RT 02 untuk pendaftaran warga baru/pembaruan data.</p>
+                            <form id="form-RT02" onsubmit="simpanData(event, 'RT 02')">
+                                <!-- Dynamic Form Rendered Below -->
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TABEL DASHBOARD RT 02 -->
+                <div class="card card-custom p-4">
+                    <h5 class="fw-bold text-primary mb-3"><i class="fa-solid fa-table me-2"></i>Data Terdaftar Warga RT. 02</h5>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped align-middle">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>No</th>
+                                    <th>Kepala Keluarga</th>
+                                    <th>No. WA Suami</th>
+                                    <th>Istri</th>
+                                    <th>Alamat</th>
+                                    <th>Status KTP</th>
+                                    <th>Dokumen KK (Drive)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-RT02">
+                                <tr><td colspan="7" class="text-center text-muted">Memuat data...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 7. WARGA RT 03 -->
+            <div class="tab-pane fade" id="rt03" role="tabpanel">
+                <div class="row g-4 mb-4">
+                    <div class="col-lg-5">
+                        <div class="card card-custom p-4 h-100">
+                            <h5 class="fw-bold text-center mb-3"><i class="fa-solid fa-chart-pie text-primary me-2"></i>Demografi Warga RT. 03</h5>
+                            <div class="chart-container">
+                                <canvas id="chart-RT03"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-7">
+                        <div class="card card-custom p-4">
+                            <h5 class="fw-bold text-primary mb-1"><i class="fa-solid fa-pen-to-square me-2"></i>Form Pendataan Warga RT. 03</h5>
+                            <p class="text-muted small">Diisi oleh Ketua RT 03 untuk pendaftaran warga baru/pembaruan data.</p>
+                            <form id="form-RT03" onsubmit="simpanData(event, 'RT 03')">
+                                <!-- Dynamic Form Rendered Below -->
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TABEL DASHBOARD RT 03 -->
+                <div class="card card-custom p-4">
+                    <h5 class="fw-bold text-primary mb-3"><i class="fa-solid fa-table me-2"></i>Data Terdaftar Warga RT. 03</h5>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped align-middle">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>No</th>
+                                    <th>Kepala Keluarga</th>
+                                    <th>No. WA Suami</th>
+                                    <th>Istri</th>
+                                    <th>Alamat</th>
+                                    <th>Status KTP</th>
+                                    <th>Dokumen KK (Drive)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-RT03">
+                                <tr><td colspan="7" class="text-center text-muted">Memuat data...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- =========================================================
+         INTEGRASI GOOGLE APPS SCRIPT + SPREADSHEET + DRIVE
+         ========================================================= -->
+    <script>
+        /*
+         * GANTI URL DI BAWAH DENGAN URL WEB APP APPS SCRIPT /exec.
+         * Contoh:
+         * https://script.google.com/macros/s/XXXXXXXX/exec
+         */
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzK-CLTBBysMe_dHYX8hkngnswaQT1FRT4J0sHdkxkCkPx4JJ52ARqCOKiIO0yoNak6yg/exec";
+
+        const RT_KEYS = ["RT01", "RT02", "RT03"];
+        const CHART_LABELS = [
+            "Balita (0-5 thn)",
+            "Anak-Anak (6-12 thn)",
+            "Remaja/Pemuda (13-25 thn)",
+            "Dewasa (26-59 thn)",
+            "Lansia (60+ thn)"
+        ];
+
+        const chartColors = ["#ff6384", "#36a2eb", "#cc65fe", "#ffce56", "#4bc0c0"];
+        const chartInstances = {};
+        let demografiData = {
+            RT01: [0, 0, 0, 0, 0],
+            RT02: [0, 0, 0, 0, 0],
+            RT03: [0, 0, 0, 0, 0]
+        };
+
+        let dashboardData = {
+            warga: { RT01: [], RT02: [], RT03: [] },
+            total_jiwa: 0,
+            demografi: demografiData,
+            viewer: null
+        };
+
+        let viewerChartInstance = null;
+        let viewerSessionId = localStorage.getItem("rw06_viewer_session");
+        if (!viewerSessionId) {
+            viewerSessionId = (crypto.randomUUID ? crypto.randomUUID() :
+                "sess-" + Date.now() + "-" + Math.random().toString(36).slice(2));
+            localStorage.setItem("rw06_viewer_session", viewerSessionId);
+        }
+
+        function assertScriptUrl() {
+            if (!SCRIPT_URL || SCRIPT_URL.indexOf("script.google.com/macros/s/") === -1) {
+                throw new Error("SCRIPT_URL belum diisi dengan URL Web App Google Apps Script /exec.");
+            }
+        }
+
+        function escapeHtml(value) {
+            return String(value ?? "-")
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        function normalizeList(value) {
+            if (Array.isArray(value)) return value;
+            if (value && typeof value === "object") return Object.values(value);
+            return [];
+        }
+
+        function normalizeDemografi(data) {
+            const result = {
+                RT01: [0, 0, 0, 0, 0],
+                RT02: [0, 0, 0, 0, 0],
+                RT03: [0, 0, 0, 0, 0]
+            };
+
+            RT_KEYS.forEach(rt => {
+                const source = data && (data[rt] || data[rt.replace("RT", "RT ")]);
+                if (Array.isArray(source)) {
+                    result[rt] = source.slice(0, 5).map(v => Number(v) || 0);
+                }
+            });
+
+            return result;
+        }
+
+        async function apiGet(action, params = {}) {
+            assertScriptUrl();
+
+            const query = new URLSearchParams({
+                action: action,
+                _: String(Date.now()),
+                ...params
+            });
+
+            const url = SCRIPT_URL + "?" + query.toString();
+
+            const response = await fetch(url, {
+                method: "GET",
+                cache: "no-store",
+                redirect: "follow"
+            });
+
+            const text = await response.text();
+
+            if (!response.ok) {
+                throw new Error("HTTP " + response.status);
+            }
+
+            let json;
+            try {
+                json = JSON.parse(text);
+            } catch (err) {
+                console.error("Respons Apps Script:", text);
+                throw new Error("Respons Apps Script bukan JSON.");
+            }
+
+            if (json.status && json.status !== "success") {
+                throw new Error(json.message || "Apps Script mengembalikan error.");
+            }
+
+            return json;
+        }
+
+        /*
+         * POST memakai text/plain agar browser tidak membuat preflight
+         * OPTIONS. Ini kompatibel dengan doPost(e) pada Apps Script.
+         */
+        async function apiPost(payload) {
+            assertScriptUrl();
+
+            const response = await fetch(SCRIPT_URL, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "text/plain;charset=utf-8"
+                },
+                body: JSON.stringify(payload),
+                redirect: "follow"
+            });
+
+            const text = await response.text();
+
+            if (!response.ok) {
+                throw new Error("HTTP " + response.status);
+            }
+
+            let json;
+            try {
+                json = JSON.parse(text);
+            } catch (err) {
+                console.error("Respons POST Apps Script:", text);
+                throw new Error("Respons Apps Script bukan JSON.");
+            }
+
+            return json;
+        }
+
+        async function loadSpreadsheetData() {
+            RT_KEYS.forEach(rt => {
+                const tbody = document.getElementById("table-" + rt);
+                if (tbody) {
+                    tbody.innerHTML =
+                        '<tr><td colspan="7" class="text-center text-muted">' +
+                        '<i class="fa-solid fa-spinner fa-spin me-2"></i>Mengambil data dari Spreadsheet...</td></tr>';
+                }
+            });
+
+            try {
+                const res = await apiGet("getData");
+
+                dashboardData = res;
+                dashboardData.warga = dashboardData.warga || {
+                    RT01: [], RT02: [], RT03: []
+                };
+
+                demografiData = normalizeDemografi(res.demografi);
+
+                RT_KEYS.forEach(rt => {
+                    renderTable(rt, normalizeList(dashboardData.warga[rt]));
+                    updateRTSummary(rt, normalizeList(dashboardData.warga[rt]));
+                });
+
+                updateTotalCard(dashboardData);
+                renderActiveChartIfNeeded();
+                renderViewerFromServer(res.viewer);
+                updateDatabaseStatus("online");
+
+            } catch (error) {
+                console.error("Gagal memuat data:", error);
+
+                RT_KEYS.forEach(rt => {
+                    const tbody = document.getElementById("table-" + rt);
+                    if (tbody) {
+                        tbody.innerHTML =
+                            '<tr><td colspan="7" class="text-center text-danger">' +
+                            '<i class="fa-solid fa-triangle-exclamation me-2"></i>' +
+                            escapeHtml(error.message) +
+                            "</td></tr>";
+                    }
+                });
+
+                showConnectionStatus(false, error.message);
+                updateDatabaseStatus("offline", error.message);
+                throw error;
+            }
+        }
+
+        function showConnectionStatus(ok, message) {
+            let el = document.getElementById("apps-script-status");
+
+            if (!el) {
+                el = document.createElement("div");
+                el.id = "apps-script-status";
+                el.className = "position-fixed bottom-0 end-0 m-3 p-2 rounded shadow small";
+                el.style.zIndex = "9999";
+                document.body.appendChild(el);
+            }
+
+            el.className = "position-fixed bottom-0 end-0 m-3 p-2 rounded shadow small " +
+                (ok ? "bg-success text-white" : "bg-danger text-white");
+
+            el.innerHTML = ok
+                ? '<i class="fa-solid fa-circle-check me-1"></i> Terhubung ke Spreadsheet'
+                : '<i class="fa-solid fa-triangle-exclamation me-1"></i> ' + escapeHtml(message);
+
+            if (ok) {
+                setTimeout(() => el.remove(), 2500);
+            }
+        }
+
+        function renderTable(rtKey, listWarga) {
+            const tbody = document.getElementById("table-" + rtKey);
+            if (!tbody) return;
+
+            if (!listWarga.length) {
+                tbody.innerHTML =
+                    '<tr><td colspan="7" class="text-center text-muted">' +
+                    'Belum ada data terdaftar.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = listWarga.map((item, index) => {
+                const kk = item.nama_kk || "-";
+                const wa = item.telp_suami || "-";
+                const istri = item.nama_istri || "-";
+                const alamat = item.alamat || "-";
+                const ktp = item.status_ktp || "Tidak";
+                const linkKK = item.linkKK || "";
+
+                return `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td>${escapeHtml(kk)}</td>
+                        <td>${escapeHtml(wa)}</td>
+                        <td>${escapeHtml(istri)}</td>
+                        <td>${escapeHtml(alamat)}</td>
+                        <td>
+                            <span class="badge ${String(ktp).toLowerCase() === "ya"
+                                ? "bg-success" : "bg-warning text-dark"}">
+                                ${String(ktp).toLowerCase() === "ya"
+                                    ? "Kadumanggu" : "Non-Kadumanggu"}
+                            </span>
+                        </td>
+                        <td>
+                            ${linkKK
+                                ? `<a href="${escapeHtml(linkKK)}"
+                                    class="btn btn-sm btn-outline-primary"
+                                    target="_blank" rel="noopener noreferrer">
+                                    <i class="fa-brands fa-google-drive me-1"></i>Buka KK
+                                   </a>`
+                                : "-"}
+                        </td>
+                    </tr>
+                `;
+            }).join("");
+        }
+
+        function countMembers(item) {
+            let total = item && item.nama_kk ? 1 : 0;
+
+            if (item && item.nama_istri) total++;
+
+            for (let i = 1; i <= 4; i++) {
+                if (item && item["nama_anak" + i]) total++;
+            }
+
+            return total;
+        }
+
+        function countKK(rtKey) {
+            return normalizeList(dashboardData.warga && dashboardData.warga[rtKey]).length;
+        }
+
+        function updateTotalCard(data) {
+            let total = Number(data.total_jiwa);
+
+            if (!Number.isFinite(total)) {
+                total = 0;
+                RT_KEYS.forEach(rt => {
+                    normalizeList(data.warga && data.warga[rt]).forEach(item => {
+                        total += countMembers(item);
+                    });
+                });
+            }
+
+            const totalEl = document.querySelector(".id-total-warga");
+            if (totalEl) totalEl.innerText = total;
+
+            // Ringkasan RT pada kartu Total RW 06
+            const cards = document.querySelectorAll("#rw-total .row:first-child .card");
+            if (cards.length >= 4) {
+                ["RT01", "RT02", "RT03"].forEach((rt, i) => {
+                    const h3 = cards[i + 1].querySelector("h3");
+                    const small = cards[i + 1].querySelector("small");
+
+                    if (h3) h3.innerText = countMembersRT(rt) + " Jiwa";
+                    if (small) small.innerText = countKK(rt) + " Kepala Keluarga";
+                });
+            }
+        }
+
+        function countMembersRT(rtKey) {
+            return normalizeList(dashboardData.warga && dashboardData.warga[rtKey])
+                .reduce((sum, item) => sum + countMembers(item), 0);
+        }
+
+        function updateRTSummary(rtKey, list) {
+            // Menyimpan statistik untuk kebutuhan chart/dashboard.
+            // Elemen ringkasan tambahan tidak wajib ada di HTML.
+            const count = list.length;
+            const el = document.getElementById("count-" + rtKey);
+            if (el) el.innerText = count;
+        }
+
+        function createDoughnutChart(rtKey) {
+            setTimeout(() => {
+                const canvas = document.getElementById("chart-" + rtKey);
+                if (!canvas) return;
+
+                if (chartInstances[rtKey]) {
+                    chartInstances[rtKey].destroy();
+                }
+
+                chartInstances[rtKey] = new Chart(canvas.getContext("2d"), {
+                    type: "doughnut",
+                    data: {
+                        labels: CHART_LABELS,
+                        datasets: [{
+                            data: demografiData[rtKey] || [0, 0, 0, 0, 0],
+                            backgroundColor: chartColors
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { position: "bottom" }
+                        }
+                    }
+                });
+            }, 100);
+        }
+
+        function loadChartRT(rtKey) {
+            createDoughnutChart(rtKey);
+        }
+
+        function loadChartTotalRW() {
+            setTimeout(() => {
+                const canvas = document.getElementById("chart-TotalRW");
+                if (!canvas) return;
+
+                const totalDemografi = [0, 0, 0, 0, 0];
+
+                RT_KEYS.forEach(rt => {
+                    (demografiData[rt] || []).forEach((value, index) => {
+                        totalDemografi[index] += Number(value) || 0;
+                    });
+                });
+
+                if (chartInstances.TotalRW) {
+                    chartInstances.TotalRW.destroy();
+                }
+
+                chartInstances.TotalRW = new Chart(canvas.getContext("2d"), {
+                    type: "bar",
+                    data: {
+                        labels: CHART_LABELS,
+                        datasets: [{
+                            label: "Jumlah Warga RW 06",
+                            data: totalDemografi,
+                            backgroundColor: chartColors
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            y: { beginAtZero: true }
+                        }
+                    }
+                });
+            }, 100);
+        }
+
+        function renderActiveChartIfNeeded() {
+            if (document.getElementById("rt01")?.classList.contains("active")) loadChartRT("RT01");
+            if (document.getElementById("rt02")?.classList.contains("active")) loadChartRT("RT02");
+            if (document.getElementById("rt03")?.classList.contains("active")) loadChartRT("RT03");
+            if (document.getElementById("rw-total")?.classList.contains("active")) loadChartTotalRW();
+        }
+
+        // ===================== SUBMIT FORM =====================
+        async function simpanData(event, rtName) {
+            event.preventDefault();
+
+            const form = event.target;
+            const submitBtn = form.querySelector('button[type="submit"]');
+
+            if (!submitBtn) return;
+
+            const originalBtnText = submitBtn.innerHTML;
+
+            try {
+                assertScriptUrl();
+
+                if (!form.checkValidity()) {
+                    form.reportValidity();
+                    return;
+                }
+
+                const fileInput = form.querySelector('input[name="file_kk"]');
+                const file = fileInput && fileInput.files ? fileInput.files[0] : null;
+
+                if (!file) {
+                    alert("Dokumen KK wajib dipilih.");
+                    return;
+                }
+
+                const maxSize = 2.5 * 1024 * 1024;
+
+                if (file.size > maxSize) {
+                    alert("Ukuran file terlalu besar. Maksimal 2.5 MB.");
+                    return;
+                }
+
+                const allowedTypes = [
+                    "image/jpeg",
+                    "image/png",
+                    "application/pdf"
+                ];
+
+                if (file.type && !allowedTypes.includes(file.type)) {
+                    alert("Format file harus JPG, PNG, atau PDF.");
+                    return;
+                }
+
+                submitBtn.disabled = true;
+                submitBtn.innerHTML =
+                    '<i class="fa-solid fa-spinner fa-spin me-2"></i>' +
+                    'Mengunggah & Menyimpan...';
+
+                const dataObj = { rt_name: rtName };
+
+                new FormData(form).forEach((value, key) => {
+                    if (key !== "file_kk") {
+                        dataObj[key] = value;
+                    }
+                });
+
+                dataObj.fileData = await fileToBase64(file);
+                dataObj.fileName = file.name;
+                dataObj.fileMimeType = file.type || "application/octet-stream";
+
+                const result = await apiPost(dataObj);
+
+                if (result.status !== "success") {
+                    throw new Error(result.message || "Gagal menyimpan data.");
+                }
+
+                alert(
+                    "Berhasil!\n\n" +
+                    "Data warga " + rtName +
+                    " sudah tersimpan ke Google Spreadsheet" +
+                    (result.fileUrl ? " dan dokumen KK sudah tersimpan ke Google Drive." : ".")
+                );
+
+                form.reset();
+
+                // Ambil ulang data dari server agar tabel dan grafik langsung berubah.
+                await loadSpreadsheetData();
+
+                showConnectionStatus(true);
+
+            } catch (error) {
+                console.error("Gagal menyimpan:", error);
+                alert("Gagal menyimpan data:\n\n" + error.message);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnText;
+            }
+        }
+
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+
+                reader.onload = () => {
+                    const result = String(reader.result || "");
+                    const comma = result.indexOf(",");
+
+                    if (comma === -1) {
+                        reject(new Error("File tidak dapat dibaca."));
+                        return;
+                    }
+
+                    resolve(result.substring(comma + 1));
+                };
+
+                reader.onerror = () => reject(new Error("Gagal membaca file."));
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // ===================== VIEWER REALTIME ==================
+        async function trackViewer() {
+            try {
+                const ua = navigator.userAgent || "";
+
+                await apiGet("trackViewer", {
+                    session: viewerSessionId,
+                    ua: ua
+                });
+            } catch (error) {
+                console.warn("Viewer tidak tercatat:", error.message);
+            }
+        }
+
+        function renderViewerFromServer(viewer) {
+            if (!viewer) return;
+
+            const count = Number(viewer.active_count);
+
+            const badge = document.getElementById("active-user-count");
+            if (badge && Number.isFinite(count)) {
+                badge.innerText = count + " Pengunjung";
+            }
+
+            const labels = normalizeList(viewer.labels);
+            const values = normalizeList(viewer.values);
+
+            if (!labels.length || !values.length) return;
+
+            const canvas = document.getElementById("viewerBarChart");
+            if (!canvas) return;
+
+            if (viewerChartInstance) {
+                viewerChartInstance.destroy();
+            }
+
+            viewerChartInstance = new Chart(canvas.getContext("2d"), {
+                type: "bar",
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: "Jumlah Pengunjung",
+                        data: values,
+                        backgroundColor: "#1e3c72",
+                        borderColor: "#2a5298",
+                        borderWidth: 1,
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: { beginAtZero: true },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+        }
+
+        async function refreshViewer() {
+            try {
+                const res = await apiGet("getData");
+                renderViewerFromServer(res.viewer);
+            } catch (error) {
+                console.warn("Gagal memperbarui viewer:", error.message);
+            }
+        }
+
+        function renderViewerChart() {
+            refreshViewer();
+        }
+
+        // ===================== AGENDA & BERITA =================
+        // Data agenda/berita tetap dikelola pada Spreadsheet.
+        // Endpoint tambahan dapat ditambahkan kemudian jika ingin
+        // membuat kedua tab ini dinamis dari sheet Agenda/Berita.
+
+        document.addEventListener("DOMContentLoaded", async function() {
+            updateDatabaseStatus("checking");
+
+            try {
+                await trackViewer();
+                await loadSpreadsheetData();
+                updateDatabaseStatus("online");
+                showConnectionStatus(true);
+            } catch (error) {
+                console.error(error);
+                updateDatabaseStatus("offline", error.message);
+            }
+
+            // Sinkronisasi dashboard berkala.
+            setInterval(async function() {
+                if (!navigator.onLine) {
+                    updateDatabaseStatus("offline", "Koneksi internet terputus.");
+                    return;
+                }
+
+                try {
+                    await loadSpreadsheetData();
+                    updateDatabaseStatus("online");
+                } catch (error) {
+                    updateDatabaseStatus("offline", error.message);
+                }
+            }, 30000);
+
+            setInterval(trackViewer, 60000);
+            setInterval(refreshViewer, 30000);
+
+            // Cek status database saat halaman aktif kembali.
+            document.addEventListener("visibilitychange", function() {
+                if (!document.hidden) {
+                    checkDatabaseConnection();
+                }
+            });
+        });
+    </script>
+
+    <!-- SCRIPT DINAMIS AGENDA & BERITA -->
+    <script>
+        async function loadAgendaBerita() {
+            const agendaEl = document.getElementById("agenda-list");
+            const beritaEl = document.getElementById("berita-list");
+
+            if (agendaEl) {
+                agendaEl.innerHTML =
+                    '<tr><td colspan="5" class="text-center text-muted">' +
+                    '<i class="fa-solid fa-spinner fa-spin me-2"></i>Memuat agenda...</td></tr>';
+            }
+
+            if (beritaEl) {
+                beritaEl.innerHTML =
+                    '<div class="col-12 text-center text-muted">' +
+                    '<i class="fa-solid fa-spinner fa-spin me-2"></i>Memuat berita...</div>';
+            }
+
+            try {
+                const result = await apiGet("getAgendaBerita");
+
+                renderAgenda(result.agenda || []);
+                renderBerita(result.berita || []);
+            } catch (error) {
+                console.error("Gagal memuat Agenda/Berita:", error);
+
+                if (agendaEl) {
+                    agendaEl.innerHTML =
+                        '<tr><td colspan="5" class="text-center text-danger">' +
+                        '<i class="fa-solid fa-triangle-exclamation me-2"></i>' +
+                        escapeHtml(error.message) + '</td></tr>';
+                }
+
+                if (beritaEl) {
+                    beritaEl.innerHTML =
+                        '<div class="col-12"><div class="alert alert-danger mb-0">' +
+                        '<i class="fa-solid fa-triangle-exclamation me-2"></i>' +
+                        escapeHtml(error.message) + '</div></div>';
+                }
+            }
+        }
+
+        function renderAgenda(items) {
+            const el = document.getElementById("agenda-list");
+            if (!el) return;
+
+            items = normalizeList(items);
+
+            if (!items.length) {
+                el.innerHTML =
+                    '<tr><td colspan="5" class="text-center text-muted">' +
+                    'Belum ada agenda kegiatan.</td></tr>';
+                return;
+            }
+
+            el.innerHTML = items.map(item => {
+                const tanggal = item.tanggal || "-";
+                const waktu = item.waktu || "-";
+                const kegiatan = item.kegiatan || "-";
+                const lokasi = item.lokasi || "-";
+                const keterangan = item.keterangan || "-";
+
+                return `
+                    <tr>
+                        <td><span class="badge bg-primary">${escapeHtml(tanggal)}</span></td>
+                        <td>${escapeHtml(waktu)}</td>
+                        <td><strong>${escapeHtml(kegiatan)}</strong></td>
+                        <td>${escapeHtml(lokasi)}</td>
+                        <td>${escapeHtml(keterangan)}</td>
+                    </tr>
+                `;
+            }).join("");
+        }
+
+        function renderBerita(items) {
+            const el = document.getElementById("berita-list");
+            if (!el) return;
+
+            items = normalizeList(items);
+
+            if (!items.length) {
+                el.innerHTML =
+                    '<div class="col-12 text-center text-muted">' +
+                    'Belum ada berita/pemberitahuan.</div>';
+                return;
+            }
+
+            el.innerHTML = items.map(item => {
+                const kategori = item.kategori || "Informasi";
+                const judul = item.judul || "-";
+                const isi = item.isi || "-";
+                const tanggal = item.tanggal || "-";
+
+                return `
+                    <div class="col-md-6">
+                        <div class="card h-100 border-0 shadow-sm bg-light">
+                            <div class="card-body">
+                                <span class="badge bg-primary mb-2">${escapeHtml(kategori)}</span>
+                                <h5 class="card-title fw-bold">${escapeHtml(judul)}</h5>
+                                <p class="card-text text-muted">${escapeHtml(isi)}</p>
+                                <small class="text-muted">
+                                    <i class="fa-regular fa-clock me-1"></i>
+                                    Diposting: ${escapeHtml(tanggal)}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join("");
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            loadAgendaBerita();
+        });
+    </script>
+
+    <!-- SCRIPT REALTIME WAKTU, SALAM, GPS, & CUACA REALTIME -->
+    <script>
+        const motivasiKerukunan = [
+            "Kerukunan tetangga adalah awal dari kedamaian lingkungan dan ketentraman hidup bersama.",
+            "Bersama kita kuat, bersatu kita rukun. Mari jaga tali silaturahmi warga RW 06.",
+            "Tetangga dekat adalah keluarga terdekat saat kita membutuhkan pertolongan.",
+            "Gotong royong menjadikan beban berat terasa ringan. Mari bina kerjasama warga.",
+            "Saling menghormati perbedaan adalah kunci utama ketentraman di lingkungan Griya Alam Sentul.",
+            "Satu tegur sapa hangat setiap hari sanggup mempererat rasa kekeluargaan.",
+            "Kebersihan dan keamanan lingkungan RW 06 adalah tanggung jawab kita bersama.",
+            "Senyum dan kepedulian antar tetangga adalah modal indah pembangun keharmonisan.",
+            "Lingkungan yang aman lahir dari rasa saling menjaga antar warga RT 01, 02, dan 03.",
+            "Perbedaan latar belakang adalah kekayaan, persatuan adalah kekuatan RW 06."
+        ];
+
+        function updateRealtimeDateTime() {
+            const now = new Date();
+            const opsiHari = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+            const tanggalFormatIndo = now.toLocaleDateString('id-ID', opsiHari);
+
+            const jam = String(now.getHours()).padStart(2, '0');
+            const menit = String(now.getMinutes()).padStart(2, '0');
+            const detik = String(now.getSeconds()).padStart(2, '0');
+            const waktuFormatIndo = `${jam}:${menit}:${detik} WIB`;
+
+            document.getElementById('realtime-date').innerText = tanggalFormatIndo;
+            document.getElementById('realtime-clock').innerText = waktuFormatIndo;
+
+            const currentHour = now.getHours();
+            const badgeElement = document.getElementById('greeting-badge');
+            let salamText = "";
+            let iconClass = "";
+
+            if (currentHour >= 3 && currentHour < 11) {
+                salamText = "Selamat Pagi, Warga RW 06!";
+                iconClass = "fa-solid fa-sun text-warning";
+            } else if (currentHour >= 11 && currentHour < 15) {
+                salamText = "Selamat Siang, Warga RW 06!";
+                iconClass = "fa-solid fa-cloud-sun text-warning";
+            } else if (currentHour >= 15 && currentHour < 18) {
+                salamText = "Selamat Sore, Warga RW 06!";
+                iconClass = "fa-solid fa-sun-plant-wilt text-warning";
+            } else {
+                salamText = "Selamat Malam, Warga RW 06!";
+                iconClass = "fa-solid fa-moon text-light";
+            }
+
+            badgeElement.innerHTML = `<i class="${iconClass} me-1"></i> ${salamText}`;
+        }
+
+        function setDailyMotivation() {
+            const now = new Date();
+            const startOfYear = new Date(now.getFullYear(), 0, 0);
+            const diff = now - startOfYear;
+            const oneDay = 1000 * 60 * 60 * 24;
+            const dayOfYear = Math.floor(diff / oneDay);
+
+            const quoteIndex = dayOfYear % motivasiKerukunan.length;
+            document.getElementById('quote-text').innerText = motivasiKerukunan[quoteIndex];
+        }
+
+        // ===================== LOKASI + CUACA REALTIME =====================
+        async function reverseGeocodeCity(lat, lon) {
+            // BigDataCloud menyediakan reverse geocoding client-side tanpa API key.
+            const url =
+                `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${encodeURIComponent(lat)}&longitude=${encodeURIComponent(lon)}&localityLanguage=id`;
+
+            const response = await fetch(url, {
+                method: "GET",
+                cache: "no-store"
+            });
+
+            if (!response.ok) {
+                throw new Error("Reverse geocoding HTTP " + response.status);
+            }
+
+            const data = await response.json();
+
+            const city =
+                data.city ||
+                data.locality ||
+                data.principalSubdivision ||
+                data.countryName ||
+                "Lokasi terdeteksi";
+
+            const region = data.principalSubdivision || "";
+            return { city, region };
+        }
+
+        function weatherDescription(code) {
+            const map = {
+                0: ["Cerah", "fa-sun"],
+                1: ["Cerah berawan", "fa-cloud-sun"],
+                2: ["Berawan sebagian", "fa-cloud-sun"],
+                3: ["Berawan", "fa-cloud"],
+                45: ["Berkabut", "fa-smog"],
+                48: ["Kabut", "fa-smog"],
+                51: ["Gerimis ringan", "fa-cloud-rain"],
+                53: ["Gerimis", "fa-cloud-rain"],
+                55: ["Gerimis lebat", "fa-cloud-rain"],
+                61: ["Hujan ringan", "fa-cloud-rain"],
+                63: ["Hujan", "fa-cloud-showers-heavy"],
+                65: ["Hujan lebat", "fa-cloud-showers-heavy"],
+                71: ["Salju ringan", "fa-snowflake"],
+                73: ["Salju", "fa-snowflake"],
+                75: ["Salju lebat", "fa-snowflake"],
+                80: ["Hujan lokal", "fa-cloud-showers-heavy"],
+                81: ["Hujan lokal", "fa-cloud-showers-heavy"],
+                82: ["Hujan sangat lebat", "fa-cloud-showers-heavy"],
+                95: ["Badai petir", "fa-cloud-bolt"],
+                96: ["Badai petir + hujan es", "fa-cloud-bolt"],
+                99: ["Badai petir + hujan es", "fa-cloud-bolt"]
+            };
+            return map[Number(code)] || ["Kondisi cuaca", "fa-cloud"];
+        }
+
+        async function loadRealtimeWeather(lat, lon) {
+            const url =
+                `https://api.open-meteo.com/v1/forecast?latitude=${encodeURIComponent(lat)}&longitude=${encodeURIComponent(lon)}` +
+                `&current=temperature_2m,apparent_temperature,weather_code,relative_humidity_2m` +
+                `&temperature_unit=celsius&timezone=auto`;
+
+            const response = await fetch(url, {
+                method: "GET",
+                cache: "no-store"
+            });
+
+            if (!response.ok) {
+                throw new Error("Cuaca HTTP " + response.status);
+            }
+
+            const data = await response.json();
+            const current = data.current || {};
+            const temp = Number(current.temperature_2m);
+
+            if (!Number.isFinite(temp)) {
+                throw new Error("Suhu realtime tidak tersedia.");
+            }
+
+            const [desc, icon] = weatherDescription(current.weather_code);
+
+            return {
+                temperature: temp,
+                apparent: Number(current.apparent_temperature),
+                humidity: Number(current.relative_humidity_2m),
+                description: desc,
+                icon: icon,
+                updatedAt: current.time || new Date().toISOString()
+            };
+        }
+
+        function renderLocationCity(city, region) {
+            const locElement = document.getElementById("user-location");
+            if (!locElement) return;
+
+            const cityText = region && region !== city
+                ? `${city}, ${region}`
+                : city;
+
+            locElement.innerHTML =
+                `<i class="fa-solid fa-location-dot text-success me-1"></i> ${escapeHtml(cityText)}`;
+        }
+
+        function renderRealtimeWeather(weather) {
+            const weatherElement = document.getElementById("user-weather");
+            if (!weatherElement) return;
+
+            const temp = Math.round(weather.temperature * 10) / 10;
+            weatherElement.innerHTML =
+                `<i class="fa-solid ${weather.icon} me-1"></i> ` +
+                `${escapeHtml(weather.description)}, ${temp}°C` +
+                (Number.isFinite(weather.humidity)
+                    ? ` <span class="opacity-75">• RH ${Math.round(weather.humidity)}%</span>`
+                    : "");
+            weatherElement.title = "Suhu realtime dari Open-Meteo";
+        }
+
+        function renderLocationFallback() {
+            const locElement = document.getElementById("user-location");
+            const weatherElement = document.getElementById("user-weather");
+
+            if (locElement) {
+                locElement.innerHTML =
+                    '<i class="fa-solid fa-location-dot me-1"></i> Lokasi tidak tersedia';
+            }
+
+            if (weatherElement) {
+                weatherElement.innerHTML =
+                    '<i class="fa-solid fa-cloud-sun me-1"></i> Suhu realtime tidak tersedia';
+            }
+        }
+
+        function initGPSAndWeather() {
+            const locElement = document.getElementById("user-location");
+            const weatherElement = document.getElementById("user-weather");
+
+            if (!navigator.onLine) {
+                if (locElement) {
+                    locElement.innerHTML =
+                        '<i class="fa-solid fa-wifi-slash me-1"></i> Offline';
+                }
+                if (weatherElement) {
+                    weatherElement.innerHTML =
+                        '<i class="fa-solid fa-temperature-half me-1"></i> -- °C';
+                }
+                return;
+            }
+
+            if (!("geolocation" in navigator)) {
+                renderLocationFallback();
+                return;
+            }
+
+            navigator.geolocation.getCurrentPosition(
+                async function(position) {
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+
+                    try {
+                        const locationResult = await reverseGeocodeCity(lat, lon);
+                        renderLocationCity(locationResult.city, locationResult.region);
+                    } catch (error) {
+                        console.warn("Gagal mendapatkan nama kota:", error);
+                        if (locElement) {
+                            locElement.innerHTML =
+                                '<i class="fa-solid fa-location-dot me-1"></i> Kota tidak terbaca';
+                        }
+                    }
+
+                    try {
+                        const weather = await loadRealtimeWeather(lat, lon);
+                        renderRealtimeWeather(weather);
+                    } catch (error) {
+                        console.warn("Gagal mendapatkan cuaca realtime:", error);
+                        if (weatherElement) {
+                            weatherElement.innerHTML =
+                                '<i class="fa-solid fa-triangle-exclamation me-1"></i> Suhu tidak tersedia';
+                        }
+                    }
+                },
+                function(error) {
+                    console.warn("GPS tidak tersedia:", error.message);
+                    if (locElement) {
+                        locElement.innerHTML =
+                            '<i class="fa-solid fa-location-dot me-1"></i> Izin lokasi belum diberikan';
+                    }
+                    if (weatherElement) {
+                        weatherElement.innerHTML =
+                            '<i class="fa-solid fa-temperature-half me-1"></i> -- °C';
+                    }
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 12000,
+                    maximumAge: 300000
+                }
+            );
+        }
+
+        // ===================== STATUS DATABASE / OFFLINE =====================
+        function updateDatabaseStatus(state, message = "") {
+            const el = document.getElementById("database-status");
+            if (!el) return;
+
+            el.classList.remove("status-online", "status-offline", "status-checking");
+
+            if (state === "online") {
+                el.classList.add("status-online");
+                el.innerHTML =
+                    '<i class="fa-solid fa-circle-check me-1"></i> Terkoneksi Database';
+                el.title = "Google Apps Script & Google Spreadsheet aktif";
+            } else if (state === "offline") {
+                el.classList.add("status-offline");
+                el.innerHTML =
+                    '<i class="fa-solid fa-circle-xmark me-1"></i> Offline';
+                el.title = message || "Tidak dapat terhubung ke database.";
+            } else {
+                el.classList.add("status-checking");
+                el.innerHTML =
+                    '<i class="fa-solid fa-spinner fa-spin me-1"></i> Mengecek Database...';
+                el.title = "Sedang memeriksa koneksi database.";
+            }
+        }
+
+        async function checkDatabaseConnection() {
+            if (!navigator.onLine) {
+                updateDatabaseStatus("offline", "Perangkat sedang offline.");
+                return false;
+            }
+
+            updateDatabaseStatus("checking");
+
+            try {
+                await apiGet("getData");
+                updateDatabaseStatus("online");
+                return true;
+            } catch (error) {
+                console.warn("Database offline:", error);
+                updateDatabaseStatus("offline", error.message);
+                return false;
+            }
+        }
+
+        window.addEventListener("online", function() {
+            checkDatabaseConnection();
+            initGPSAndWeather();
+        });
+
+        window.addEventListener("offline", function() {
+            updateDatabaseStatus("offline", "Koneksi internet terputus.");
+            const locElement = document.getElementById("user-location");
+            const weatherElement = document.getElementById("user-weather");
+            if (locElement) {
+                locElement.innerHTML =
+                    '<i class="fa-solid fa-wifi-slash me-1"></i> Offline';
+            }
+            if (weatherElement) {
+                weatherElement.innerHTML =
+                    '<i class="fa-solid fa-temperature-half me-1"></i> -- °C';
+            }
+        });
+
+        setInterval(updateRealtimeDateTime, 1000);
+        document.addEventListener("DOMContentLoaded", function() {
+            updateRealtimeDateTime();
+            setDailyMotivation();
+            initGPSAndWeather();
+            initOnlineUsers();
+        });
+    </script>
+
+    <!-- TEMPLATE SCRIPT UNTUK GENERATE FORM -->
+    <script>
+        function generateFormHTML(rtName) {
+            return `
+                <div class="section-header">Data Kepala Keluarga (Suami)</div>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Nama Kepala Keluarga <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="nama_kk" placeholder="Nama Lengkap Suami" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Tgl Lahir <span class="text-danger">*</span></label>
+                        <input type="date" class="form-control" name="tgl_lahir_kk" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Jenis Kelamin</label>
+                        <input type="text" class="form-control bg-light" name="jk_kk" value="Laki-Laki" readonly>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">No. Telpon / WA Suami <span class="text-danger">*</span></label>
+                        <input type="tel" class="form-control" name="telp_suami" placeholder="08xxxxxxxxxx" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Alamat Tempat Tinggal <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="alamat" placeholder="Contoh: Blok A No. 12" required>
+                    </div>
+                </div>
+
+                <div class="section-header">Data Istri</div>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Nama Istri</label>
+                        <input type="text" class="form-control" name="nama_istri" placeholder="Nama Lengkap Istri">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Tgl Lahir Istri</label>
+                        <input type="date" class="form-control" name="tgl_lahir_istri">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Jenis Kelamin</label>
+                        <input type="text" class="form-control bg-light" name="jk_istri" value="Perempuan" readonly>
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label">No. Telpon / WA Istri</label>
+                        <input type="tel" class="form-control" name="telp_istri" placeholder="08xxxxxxxxxx">
+                    </div>
+                </div>
+
+                <div class="section-header">Data Anak (Maksimal 4 Anak)</div>
+                <div class="row g-3">
+                    ${[1, 2, 3, 4].map(num => `
+                        <div class="col-md-5">
+                            <label class="form-label">Nama Anak ${num}</label>
+                            <input type="text" class="form-control" name="nama_anak${num}" placeholder="Nama Anak ${num}">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Tgl Lahir</label>
+                            <input type="date" class="form-control" name="tgl_anak${num}">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Jenis Kelamin</label>
+                            <select class="form-select" name="jk_anak${num}">
+                                <option value="">-- Pilih --</option>
+                                <option value="Laki-Laki">Laki-Laki</option>
+                                <option value="Perempuan">Perempuan</option>
+                            </select>
+                        </div>
+                    `).join('')}
+                </div>
+
+                <div class="section-header">Status Kependudukan & Dokumen KK</div>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label class="form-label">Status KTP Kadumanggu <span class="text-danger">*</span></label>
+                        <select class="form-select" name="status_ktp" required>
+                            <option value="">-- Pilih Status --</option>
+                            <option value="Ya">Ya (KTP Kadumanggu)</option>
+                            <option value="Tidak">Tidak (KTP Luar Region)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="upload-box">
+                            <label class="form-label fw-bold text-primary mb-1">
+                                <i class="fa-brands fa-google-drive me-1"></i> Upload Dokumen/Foto KK ke Google Drive <span class="text-danger">*</span>
+                            </label>
+                            <input type="file" class="form-control mt-2" name="file_kk" accept=".jpg,.jpeg,.png,.pdf" required>
+                            <small class="text-muted d-block mt-1">Format: JPG, PNG, atau PDF (Maksimal 2.5 MB)</small>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold">
+                    <i class="fa-solid fa-cloud-arrow-up me-2"></i>Simpan Data & Unggah KK ke Drive (${rtName})
+                </button>
+            `;
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            document.getElementById('form-RT01').innerHTML = generateFormHTML('RT 01');
+            document.getElementById('form-RT02').innerHTML = generateFormHTML('RT 02');
+            document.getElementById('form-RT03').innerHTML = generateFormHTML('RT 03');
+        });
+    </script>
+
+    <!-- JS BOOTSTRAP BUNDLE -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
