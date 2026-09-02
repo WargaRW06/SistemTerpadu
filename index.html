@@ -790,6 +790,13 @@
             height: 100% !important;
         }
 
+
+        /* Piramida penduduk RW 06 */
+        #chart-TotalRW {
+            width: 100% !important;
+            height: 100% !important;
+        }
+
         /* Upload Container Highlight */
         .upload-box {
             background-color: #f1f5f9;
@@ -1229,8 +1236,8 @@ form .btn-lg{min-height:46px;font-size:clamp(.82rem,.15vw + .78rem,.94rem)!impor
                         <div class="card card-custom p-4">
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <div>
-                                    <h5 class="fw-bold mb-0 text-primary"><i class="fa-solid fa-chart-column me-2"></i>Navbar Viewer - Pengunjung Realtime</h5>
-                                    <small class="text-muted">Pantauan riwayat jumlah pembuka aplikasi dari waktu ke waktu</small>
+                                    <h5 class="fw-bold mb-0 text-primary"><i class="fa-solid fa-chart-column me-2"></i>Navbar Viewer - Pengunjung Realtime per Hari</h5>
+                                    <small class="text-muted">Grafik garis jumlah pengunjung aplikasi dari hari ke hari</small>
                                 </div>
                                 <span class="badge bg-danger animate-pulse"><i class="fa-solid fa-circle me-1"></i> LIVE UPDATE</span>
                             </div>
@@ -1405,8 +1412,11 @@ form .btn-lg{min-height:46px;font-size:clamp(.82rem,.15vw + .78rem,.94rem)!impor
                 </div>
 
                 <div class="card card-custom p-4">
-                    <h5 class="fw-bold text-center mb-3"><i class="fa-solid fa-chart-pie text-primary me-2"></i>Grafik Akumulasi Demografi RW. 06</h5>
-                    <div class="chart-container-large">
+                    <div class="text-center mb-3">
+                        <h5 class="fw-bold mb-1"><i class="fa-solid fa-chart-simple text-primary me-2"></i>Grafik Akumulasi Demografi RW. 06</h5>
+                        <small class="text-muted">Piramida penduduk berdasarkan kelompok umur dan jenis kelamin</small>
+                    </div>
+                    <div class="chart-container-large" style="max-width: 900px; height: clamp(300px, 38vw, 430px) !important;">
                         <canvas id="chart-TotalRW"></canvas>
                     </div>
                 </div>
@@ -2063,18 +2073,123 @@ form .btn-lg{min-height:46px;font-size:clamp(.82rem,.15vw + .78rem,.94rem)!impor
             createDoughnutChart(rtKey);
         }
 
+        // ===================== PIRAMIDA DEMOGRAFI RW 06 =====================
+        function hitungUmur(tglLahir) {
+            if (!tglLahir) return null;
+
+            let tanggal;
+            if (tglLahir instanceof Date) {
+                tanggal = tglLahir;
+            } else {
+                const raw = String(tglLahir).trim();
+                if (!raw) return null;
+
+                const isoMatch = raw.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+                if (isoMatch) {
+                    tanggal = new Date(
+                        Number(isoMatch[1]),
+                        Number(isoMatch[2]) - 1,
+                        Number(isoMatch[3])
+                    );
+                } else {
+                    tanggal = new Date(raw);
+                }
+            }
+
+            if (Number.isNaN(tanggal.getTime())) return null;
+
+            const hariIni = new Date();
+            let umur = hariIni.getFullYear() - tanggal.getFullYear();
+            const belumUlangTahun =
+                hariIni.getMonth() < tanggal.getMonth() ||
+                (hariIni.getMonth() === tanggal.getMonth() &&
+                 hariIni.getDate() < tanggal.getDate());
+
+            if (belumUlangTahun) umur--;
+            return umur >= 0 && umur <= 120 ? umur : null;
+        }
+
+        function kelompokUmur(umur) {
+            if (umur === null || umur === undefined) return -1;
+            if (umur <= 5) return 0;
+            if (umur <= 12) return 1;
+            if (umur <= 25) return 2;
+            if (umur <= 59) return 3;
+            return 4;
+        }
+
+        function tambahDemografiPiramida(data, hasil) {
+            normalizeList(data).forEach(item => {
+                const anggota = [];
+
+                if (item.nama_kk && item.tgl_lahir_kk) {
+                    anggota.push({
+                        jk: item.jk_kk || "Laki-Laki",
+                        tgl: item.tgl_lahir_kk
+                    });
+                }
+
+                if (item.nama_istri && item.tgl_lahir_istri) {
+                    anggota.push({
+                        jk: item.jk_istri || "Perempuan",
+                        tgl: item.tgl_lahir_istri
+                    });
+                }
+
+                for (let i = 1; i <= 4; i++) {
+                    const nama = item["nama_anak" + i];
+                    const tgl = item["tgl_anak" + i];
+                    const jk = item["jk_anak" + i];
+
+                    if (nama && tgl && jk) {
+                        anggota.push({ jk, tgl });
+                    }
+                }
+
+                anggota.forEach(person => {
+                    const umur = hitungUmur(person.tgl);
+                    const index = kelompokUmur(umur);
+                    if (index < 0) return;
+
+                    const jk = String(person.jk || "").toLowerCase();
+                    if (jk.includes("laki")) {
+                        hasil.laki[index]++;
+                    } else if (jk.includes("perempuan")) {
+                        hasil.perempuan[index]++;
+                    }
+                });
+            });
+        }
+
+        function getDemografiPiramidaRW() {
+            const hasil = {
+                laki: [0, 0, 0, 0, 0],
+                perempuan: [0, 0, 0, 0, 0]
+            };
+
+            RT_KEYS.forEach(rt => {
+                tambahDemografiPiramida(
+                    dashboardData.warga && dashboardData.warga[rt],
+                    hasil
+                );
+            });
+
+            return hasil;
+        }
+
         function loadChartTotalRW() {
             setTimeout(() => {
                 const canvas = document.getElementById("chart-TotalRW");
                 if (!canvas) return;
 
-                const totalDemografi = [0, 0, 0, 0, 0];
-
-                RT_KEYS.forEach(rt => {
-                    (demografiData[rt] || []).forEach((value, index) => {
-                        totalDemografi[index] += Number(value) || 0;
-                    });
-                });
+                const piramida = getDemografiPiramidaRW();
+                const labels = [
+                    "Balita (0–5 thn)",
+                    "Anak-anak (6–12 thn)",
+                    "Remaja/Pemuda (13–25 thn)",
+                    "Dewasa (26–59 thn)",
+                    "Lansia (60+ thn)"
+                ];
 
                 if (chartInstances.TotalRW) {
                     chartInstances.TotalRW.destroy();
@@ -2083,20 +2198,87 @@ form .btn-lg{min-height:46px;font-size:clamp(.82rem,.15vw + .78rem,.94rem)!impor
                 chartInstances.TotalRW = new Chart(canvas.getContext("2d"), {
                     type: "bar",
                     data: {
-                        labels: CHART_LABELS,
-                        datasets: [{
-                            label: "Jumlah Warga RW 06",
-                            data: totalDemografi,
-                            backgroundColor: chartColors
-                        }]
+                        labels,
+                        datasets: [
+                            {
+                                label: "Laki-Laki",
+                                data: piramida.laki.map(v => -v),
+                                backgroundColor: "rgba(54, 162, 235, 0.82)",
+                                borderColor: "#2488c7",
+                                borderWidth: 1,
+                                borderRadius: 4,
+                                barPercentage: 0.86,
+                                categoryPercentage: 0.82
+                            },
+                            {
+                                label: "Perempuan",
+                                data: piramida.perempuan,
+                                backgroundColor: "rgba(255, 99, 132, 0.82)",
+                                borderColor: "#e64f73",
+                                borderWidth: 1,
+                                borderRadius: 4,
+                                barPercentage: 0.86,
+                                categoryPercentage: 0.82
+                            }
+                        ]
                     },
                     options: {
+                        indexAxis: "y",
                         responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: {
+                            mode: "index",
+                            intersect: false
+                        },
                         plugins: {
-                            legend: { display: false }
+                            legend: {
+                                position: "bottom",
+                                labels: {
+                                    usePointStyle: true,
+                                    padding: 18,
+                                    font: { weight: "600" }
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const jumlah = Math.abs(Number(context.raw) || 0);
+                                        return " " + context.dataset.label + ": " + jumlah + " jiwa";
+                                    }
+                                }
+                            }
                         },
                         scales: {
-                            y: { beginAtZero: true }
+                            x: {
+                                beginAtZero: true,
+                                suggestedMin: -1,
+                                suggestedMax: 1,
+                                ticks: {
+                                    callback: function(value) {
+                                        return Math.abs(value);
+                                    }
+                                },
+                                title: {
+                                    display: true,
+                                    text: "Jumlah warga (jiwa)"
+                                },
+                                grid: {
+                                    color: function(context) {
+                                        return context.tick.value === 0
+                                            ? "rgba(30, 60, 114, 0.55)"
+                                            : "rgba(30, 60, 114, 0.08)";
+                                    },
+                                    lineWidth: function(context) {
+                                        return context.tick.value === 0 ? 2 : 1;
+                                    }
+                                }
+                            },
+                            y: {
+                                grid: { display: false },
+                                ticks: {
+                                    font: { weight: "600" }
+                                }
+                            }
                         }
                     }
                 });
@@ -2350,27 +2532,60 @@ form .btn-lg{min-height:46px;font-size:clamp(.82rem,.15vw + .78rem,.94rem)!impor
             }
 
             viewerChartInstance = new Chart(canvas.getContext("2d"), {
-                type: "bar",
+                type: "line",
                 data: {
                     labels: labels,
                     datasets: [{
-                        label: "Jumlah Pengunjung",
+                        label: "Pengunjung per Hari",
                         data: values,
-                        backgroundColor: "#1e3c72",
-                        borderColor: "#2a5298",
-                        borderWidth: 1,
-                        borderRadius: 6
+                        borderColor: "#1e3c72",
+                        backgroundColor: "rgba(30, 60, 114, 0.12)",
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.35,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        pointBorderWidth: 2,
+                        pointBackgroundColor: "#ffffff",
+                        pointBorderColor: "#1e3c72"
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    interaction: {
+                        mode: "index",
+                        intersect: false
+                    },
                     plugins: {
-                        legend: { display: false }
+                        legend: { display: false },
+                        tooltip: {
+                            displayColors: false,
+                            callbacks: {
+                                label: function(context) {
+                                    return " " + Number(context.parsed.y || 0).toLocaleString("id-ID") + " pengunjung";
+                                }
+                            }
+                        }
                     },
                     scales: {
-                        y: { beginAtZero: true },
-                        x: { grid: { display: false } }
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0
+                            },
+                            title: {
+                                display: true,
+                                text: "Jumlah Pengunjung"
+                            }
+                        },
+                        x: {
+                            grid: { display: false },
+                            title: {
+                                display: true,
+                                text: "Hari"
+                            }
+                        }
                     }
                 }
             });
