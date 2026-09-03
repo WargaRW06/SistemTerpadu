@@ -1218,6 +1218,7 @@ form .btn-lg{min-height:46px;font-size:clamp(.82rem,.15vw + .78rem,.94rem)!impor
 </style>
 </head>
 <body>
+    <!-- MERGED INDEX: dashboard utama + pengelolaan agenda pengurus RW/RT -->
 
     <!-- HEADER UTAMA -->
     <header class="hero-header">
@@ -1418,12 +1419,18 @@ form .btn-lg{min-height:46px;font-size:clamp(.82rem,.15vw + .78rem,.94rem)!impor
             <!-- 2. KALENDER AGENDA -->
             <div class="tab-pane fade" id="kalender" role="tabpanel">
                 <div class="card card-custom p-4">
-                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
                         <h4 class="fw-bold mb-0"><i class="fa-regular fa-calendar-check text-primary me-2"></i>Kalender Agenda Kegiatan RW. 06</h4>
-                        <button class="btn btn-sm btn-outline-primary" type="button" onclick="loadAgendaBerita()">
-                            <i class="fa-solid fa-arrows-rotate me-1"></i>Refresh
-                        </button>
+                        <div class="d-flex flex-wrap gap-2">
+                            <button class="btn btn-sm btn-success" type="button" onclick="openAgendaAdminLogin()">
+                                <i class="fa-solid fa-user-shield me-1"></i>Pengurus: Tambah Agenda
+                            </button>
+                            <button class="btn btn-sm btn-outline-primary" type="button" onclick="loadAgendaBerita()">
+                                <i class="fa-solid fa-arrows-rotate me-1"></i>Refresh
+                            </button>
+                        </div>
                     </div>
+                    <div id="agenda-admin-status" class="alert alert-light border d-none py-2 px-3 mb-3 small"></div>
                     <div class="table-responsive">
                         <table class="table table-hover align-middle">
                             <thead class="table-light">
@@ -1441,6 +1448,45 @@ form .btn-lg{min-height:46px;font-size:clamp(.82rem,.15vw + .78rem,.94rem)!impor
                                 </td></tr>
                             </tbody>
                         </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MODAL LOGIN & FORM PENGELOLAAN AGENDA PENGURUS -->
+            <div class="modal fade" id="modalAgendaAdmin" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-lg">
+                    <div class="modal-content border-0 shadow-lg" style="border-radius:18px;overflow:hidden;">
+                        <div class="modal-header bg-success text-white">
+                            <div>
+                                <h5 class="modal-title fw-bold"><i class="fa-solid fa-user-shield me-2"></i>Panel Pengurus Agenda RW. 06</h5>
+                                <small class="opacity-75">Khusus Pengurus RW / RT</small>
+                            </div>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Tutup"></button>
+                        </div>
+                        <div class="modal-body p-4">
+                            <div id="agendaAdminAlert"></div>
+                            <div id="agendaLoginPanel">
+                                <div class="alert alert-info"><i class="fa-solid fa-circle-info me-2"></i>Masukkan nama pengurus dan password untuk mengelola agenda.</div>
+                                <div class="mb-3"><label class="form-label">Nama Pengurus</label><input type="text" class="form-control" id="agendaAdminName" maxlength="100" placeholder="Contoh: Ketua RW 06 / Ketua RT 01" autocomplete="name"></div>
+                                <div class="mb-3"><label class="form-label">Password</label><input type="password" class="form-control" id="agendaAdminPassword" placeholder="Masukkan password" autocomplete="current-password"></div>
+                                <button class="btn btn-success w-100" type="button" onclick="loginAgendaAdmin()"><i class="fa-solid fa-right-to-bracket me-2"></i>Masuk sebagai Pengurus</button>
+                            </div>
+                            <div id="agendaAdminPanel" class="d-none">
+                                <div class="d-flex justify-content-between align-items-center mb-3"><div class="small text-success fw-bold"><i class="fa-solid fa-circle-check me-1"></i><span id="agendaLoggedName"></span></div><button class="btn btn-sm btn-outline-danger" type="button" onclick="logoutAgendaAdmin()"><i class="fa-solid fa-right-from-bracket me-1"></i>Keluar</button></div>
+                                <form id="formAgendaAdmin" onsubmit="saveAgendaAdmin(event)">
+                                    <input type="hidden" id="agendaEditId">
+                                    <div class="row g-3">
+                                        <div class="col-md-4"><label class="form-label">Tanggal *</label><input type="date" class="form-control" id="agendaAdminTanggal" required></div>
+                                        <div class="col-md-4"><label class="form-label">Waktu *</label><input type="time" class="form-control" id="agendaAdminWaktu" required></div>
+                                        <div class="col-md-4"><label class="form-label">Kegiatan *</label><input type="text" class="form-control" id="agendaAdminKegiatan" maxlength="150" required></div>
+                                        <div class="col-md-6"><label class="form-label">Lokasi</label><input type="text" class="form-control" id="agendaAdminLokasi" maxlength="150"></div>
+                                        <div class="col-md-6"><label class="form-label">Keterangan</label><input type="text" class="form-control" id="agendaAdminKeterangan" maxlength="250"></div>
+                                    </div>
+                                    <div class="d-flex flex-wrap gap-2 mt-4"><button class="btn btn-success" type="submit"><i class="fa-solid fa-floppy-disk me-1"></i><span id="agendaSaveLabel">Simpan Agenda</span></button><button class="btn btn-outline-secondary" type="button" onclick="resetAgendaAdminForm()"><i class="fa-solid fa-rotate-left me-1"></i>Form Baru</button></div>
+                                </form>
+                                <hr><h6 class="fw-bold"><i class="fa-solid fa-list-check me-2"></i>Agenda yang ditambahkan pengurus</h6><div id="agendaAdminList" class="list-group small"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -3633,6 +3679,30 @@ form .btn-lg{min-height:46px;font-size:clamp(.82rem,.15vw + .78rem,.94rem)!impor
         });
     </script>
 
+
+    <!-- PENGELOLAAN AGENDA PENGURUS RW/RT -->
+    <script>
+        const AGENDA_ADMIN_PASSWORD = "P455word";
+        const AGENDA_LOCAL_KEY = "rw06_agenda_pengurus_v1";
+        let agendaAdminLoggedIn = false;
+        function getLocalAdminAgendas(){try{return JSON.parse(localStorage.getItem(AGENDA_LOCAL_KEY)||"[]")}catch(e){return[]}}
+        function setLocalAdminAgendas(items){localStorage.setItem(AGENDA_LOCAL_KEY,JSON.stringify(items))}
+        function formatAgendaDate(value){if(!value)return "-";const d=new Date(value+"T00:00:00");return Number.isNaN(d.getTime())?value:d.toLocaleDateString("id-ID",{day:"2-digit",month:"long",year:"numeric"})}
+        function openAgendaAdminLogin(){const m=bootstrap.Modal.getOrCreateInstance(document.getElementById("modalAgendaAdmin"));document.getElementById("agendaAdminAlert").innerHTML="";agendaAdminLoggedIn?showAgendaAdminPanel():showAgendaLoginPanel();m.show()}
+        function showAgendaLoginPanel(){document.getElementById("agendaLoginPanel").classList.remove("d-none");document.getElementById("agendaAdminPanel").classList.add("d-none");setTimeout(()=>document.getElementById("agendaAdminName")?.focus(),250)}
+        function showAgendaAdminPanel(){document.getElementById("agendaLoginPanel").classList.add("d-none");document.getElementById("agendaAdminPanel").classList.remove("d-none");document.getElementById("agendaLoggedName").textContent=sessionStorage.getItem("rw06_agenda_admin_name")||"Pengurus";renderAdminAgendaList()}
+        function loginAgendaAdmin(){const name=document.getElementById("agendaAdminName").value.trim(),password=document.getElementById("agendaAdminPassword").value,alertEl=document.getElementById("agendaAdminAlert");if(!name){alertEl.innerHTML='<div class="alert alert-warning">Nama pengurus wajib diisi.</div>';return}if(password!==AGENDA_ADMIN_PASSWORD){alertEl.innerHTML='<div class="alert alert-danger"><i class="fa-solid fa-lock me-2"></i>Password salah.</div>';return}agendaAdminLoggedIn=true;sessionStorage.setItem("rw06_agenda_admin_name",name);document.getElementById("agendaAdminPassword").value="";alertEl.innerHTML='<div class="alert alert-success">Login berhasil. Silakan tambah atau kelola agenda.</div>';showAgendaAdminPanel();updateAgendaAdminStatus()}
+        function logoutAgendaAdmin(){agendaAdminLoggedIn=false;sessionStorage.removeItem("rw06_agenda_admin_name");resetAgendaAdminForm();showAgendaLoginPanel();updateAgendaAdminStatus()}
+        function updateAgendaAdminStatus(){const el=document.getElementById("agenda-admin-status");if(!el)return;if(agendaAdminLoggedIn){el.className="alert alert-success border py-2 px-3 mb-3 small";el.innerHTML='<i class="fa-solid fa-user-shield me-1"></i>Mode Pengurus aktif: <strong>'+escapeHtml(sessionStorage.getItem("rw06_agenda_admin_name")||"Pengurus")+'</strong>. Agenda baru tersimpan pada perangkat ini.'}else el.classList.add("d-none")}
+        function saveAgendaAdmin(event){event.preventDefault();if(!agendaAdminLoggedIn){alert("Silakan login sebagai Pengurus terlebih dahulu.");return}const id=document.getElementById("agendaEditId").value||(Date.now()+"");const item={id,tanggal:document.getElementById("agendaAdminTanggal").value,waktu:document.getElementById("agendaAdminWaktu").value,kegiatan:document.getElementById("agendaAdminKegiatan").value.trim(),lokasi:document.getElementById("agendaAdminLokasi").value.trim(),keterangan:document.getElementById("agendaAdminKeterangan").value.trim(),dibuatOleh:sessionStorage.getItem("rw06_agenda_admin_name")||"Pengurus"};const items=getLocalAdminAgendas(),idx=items.findIndex(x=>String(x.id)===String(id));if(idx>=0)items[idx]=item;else items.push(item);items.sort((a,b)=>String(a.tanggal).localeCompare(String(b.tanggal))||String(a.waktu).localeCompare(String(b.waktu)));setLocalAdminAgendas(items);resetAgendaAdminForm();renderAdminAgendaList();loadAgendaBerita();document.getElementById("agendaAdminAlert").innerHTML='<div class="alert alert-success"><i class="fa-solid fa-circle-check me-2"></i>Agenda berhasil disimpan.</div>'}
+        function resetAgendaAdminForm(){const form=document.getElementById("formAgendaAdmin");if(form)form.reset();document.getElementById("agendaEditId").value="";document.getElementById("agendaSaveLabel").textContent="Simpan Agenda"}
+        function editLocalAgenda(id){const item=getLocalAdminAgendas().find(x=>String(x.id)===String(id));if(!item)return;document.getElementById("agendaEditId").value=item.id;document.getElementById("agendaAdminTanggal").value=item.tanggal||"";document.getElementById("agendaAdminWaktu").value=item.waktu||"";document.getElementById("agendaAdminKegiatan").value=item.kegiatan||"";document.getElementById("agendaAdminLokasi").value=item.lokasi||"";document.getElementById("agendaAdminKeterangan").value=item.keterangan||"";document.getElementById("agendaSaveLabel").textContent="Perbarui Agenda"}
+        function deleteLocalAgenda(id){if(!confirm("Hapus agenda ini?"))return;setLocalAdminAgendas(getLocalAdminAgendas().filter(x=>String(x.id)!==String(id)));renderAdminAgendaList();loadAgendaBerita()}
+        function renderAdminAgendaList(){const el=document.getElementById("agendaAdminList");if(!el)return;const items=getLocalAdminAgendas();if(!items.length){el.innerHTML='<div class="text-muted py-2">Belum ada agenda tambahan dari pengurus.</div>';return}el.innerHTML=items.map(item=>'<div class="list-group-item d-flex flex-wrap justify-content-between align-items-center gap-2"><div><strong>'+escapeHtml(formatAgendaDate(item.tanggal))+' '+escapeHtml(item.waktu||"")+'</strong><br>'+escapeHtml(item.kegiatan||"-")+' · '+escapeHtml(item.lokasi||"-")+'<br><span class="text-muted">'+escapeHtml(item.keterangan||"")+' · oleh '+escapeHtml(item.dibuatOleh||"Pengurus")+'</span></div><div class="d-flex gap-1"><button class="btn btn-sm btn-outline-primary" type="button" onclick="editLocalAgenda('+JSON.stringify(String(item.id))+')"><i class="fa-solid fa-pen"></i></button><button class="btn btn-sm btn-outline-danger" type="button" onclick="deleteLocalAgenda('+JSON.stringify(String(item.id))+')"><i class="fa-solid fa-trash"></i></button></div></div>').join("")}
+        const _originalRenderAgenda = renderAgenda;
+        renderAgenda=function(items){_originalRenderAgenda((Array.isArray(items)?items:[]).concat(getLocalAdminAgendas()))};
+        document.addEventListener("DOMContentLoaded",function(){if(sessionStorage.getItem("rw06_agenda_admin_name"))agendaAdminLoggedIn=true;updateAgendaAdminStatus()});
+    </script>
 
     <!-- FOOTER -->
     <footer class="site-footer">
