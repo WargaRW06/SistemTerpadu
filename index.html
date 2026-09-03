@@ -368,7 +368,7 @@
             height: 100% !important;
         }
 
-        #viewerBarChart {
+        #viewerLineChart {
             max-width: 100%;
         }
 
@@ -1073,6 +1073,148 @@ form .btn-lg{min-height:46px;font-size:clamp(.82rem,.15vw + .78rem,.94rem)!impor
         .phone-invalid { border-color:#dc3545 !important; box-shadow:0 0 0 .15rem rgba(220,53,69,.10); }
         .phone-hint { font-size:.72rem; color:#64748b; margin-top:.25rem; }
         #phoneVerificationStatus { min-height:1.25rem; margin-top:.35rem; font-size:.76rem; }
+
+
+/* =========================================================
+   HEADER WIDGETS - GRID RAPIH TANPA FRAME/KOTAK
+   ========================================================= */
+.hero-header .col-lg-5 {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;
+    justify-content: flex-end;
+    gap: 0;
+}
+
+/* Hilangkan tampilan kotak/frame pada semua widget header */
+.hero-header .header-widget {
+    min-width: 0 !important;
+    flex: 1 1 180px;
+    margin: 0 !important;
+    padding: .35rem .85rem !important;
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    text-align: left !important;
+    position: relative;
+}
+
+/* Pemisah halus antar informasi, bukan frame */
+.hero-header .header-widget + .header-widget {
+    border-left: 1px solid rgba(255,255,255,.20) !important;
+}
+
+/* Judul widget */
+.hero-header .header-widget .small.text-uppercase {
+    font-size: .64rem !important;
+    letter-spacing: .045em;
+    line-height: 1.2;
+    white-space: nowrap;
+}
+
+/* Isi widget */
+.hero-header .header-widget .fs-5 {
+    font-size: 1.02rem !important;
+    line-height: 1.15;
+}
+.hero-header .header-widget .fs-6 {
+    font-size: .72rem !important;
+}
+.hero-header .header-widget #database-status,
+.hero-header .header-widget #user-location,
+.hero-header .header-widget #user-weather,
+.hero-header .header-widget #last-online-status,
+.hero-header .header-widget #last-online-location {
+    font-size: .70rem !important;
+    line-height: 1.25;
+}
+
+/* Area kanan menjadi grid 2x2 pada desktop */
+@media (min-width: 992px) {
+    .hero-header .col-lg-5 {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        align-items: stretch;
+    }
+
+    .hero-header .header-widget {
+        width: auto !important;
+        flex: none;
+        min-height: 58px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .hero-header .header-widget:nth-child(odd) {
+        border-left: 0 !important;
+    }
+
+    .hero-header .header-widget:nth-child(n+3) {
+        border-top: 1px solid rgba(255,255,255,.16) !important;
+        padding-top: .65rem !important;
+    }
+
+    .hero-header .header-widget:nth-child(even) {
+        border-left: 1px solid rgba(255,255,255,.20) !important;
+    }
+}
+
+/* Tablet: tetap rapi dan tidak berkotak */
+@media (min-width: 576px) and (max-width: 991.98px) {
+    .hero-header .col-lg-5 {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        text-align: left !important;
+    }
+
+    .hero-header .header-widget {
+        min-height: 55px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .hero-header .header-widget:nth-child(even) {
+        border-left: 1px solid rgba(255,255,255,.20) !important;
+    }
+
+    .hero-header .header-widget:nth-child(n+3) {
+        border-top: 1px solid rgba(255,255,255,.16) !important;
+        padding-top: .6rem !important;
+    }
+}
+
+/* HP: satu kolom, tanpa frame dan tanpa garis berlebihan */
+@media (max-width: 575.98px) {
+    .hero-header .col-lg-5 {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 0;
+        text-align: left !important;
+    }
+
+    .hero-header .header-widget {
+        width: 100% !important;
+        min-height: 0;
+        padding: .5rem .15rem !important;
+        display: block;
+    }
+
+    .hero-header .header-widget + .header-widget,
+    .hero-header .header-widget:nth-child(even),
+    .hero-header .header-widget:nth-child(n+3) {
+        border-left: 0 !important;
+        border-top: 1px solid rgba(255,255,255,.14) !important;
+    }
+
+    .hero-header .header-widget:first-child {
+        border-top: 0 !important;
+    }
+}
+
 </style>
 </head>
 <body>
@@ -1129,6 +1271,17 @@ form .btn-lg{min-height:46px;font-size:clamp(.82rem,.15vw + .78rem,.94rem)!impor
                         </div>
                         <div id="database-status" class="fw-bold small text-warning">
                             <i class="fa-solid fa-spinner fa-spin me-1"></i> Menghubungkan...
+                        </div>
+                    </div>
+                    <div class="header-widget text-start text-lg-end ms-lg-2" id="last-online-widget">
+                        <div class="small text-uppercase text-light opacity-75 fw-bold mb-1">
+                            <i class="fa-solid fa-clock-rotate-left me-1"></i> Terakhir Online
+                        </div>
+                        <div id="last-online-status" class="fw-bold small text-light">
+                            <i class="fa-solid fa-spinner fa-spin me-1"></i> Mendeteksi...
+                        </div>
+                        <div id="last-online-location" class="small text-light opacity-75 mt-1">
+                            <i class="fa-solid fa-location-dot me-1"></i> Mendeteksi lokasi...
                         </div>
                     </div>
                 </div>
@@ -1236,13 +1389,13 @@ form .btn-lg{min-height:46px;font-size:clamp(.82rem,.15vw + .78rem,.94rem)!impor
                         <div class="card card-custom p-4">
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <div>
-                                    <h5 class="fw-bold mb-0 text-primary"><i class="fa-solid fa-chart-column me-2"></i>Navbar Viewer - Pengunjung Realtime per Hari</h5>
+                                    <h5 class="fw-bold mb-0 text-primary"><i class="fa-solid fa-chart-line me-2"></i>Navbar Viewer - Pengunjung Realtime Hari per Hari</h5>
                                     <small class="text-muted">Grafik garis jumlah pengunjung aplikasi dari hari ke hari</small>
                                 </div>
                                 <span class="badge bg-danger animate-pulse"><i class="fa-solid fa-circle me-1"></i> LIVE UPDATE</span>
                             </div>
                             <div style="height: 300px;">
-                                <canvas id="viewerBarChart"></canvas>
+                                <canvas id="viewerLineChart"></canvas>
                             </div>
                         </div>
                     </div>
@@ -1989,9 +2142,9 @@ form .btn-lg{min-height:46px;font-size:clamp(.82rem,.15vw + .78rem,.94rem)!impor
 
             if (item && item.nama_istri) total++;
 
-            for (let i = 1; i <= 4; i++) {
-                if (item && item["nama_anak" + i]) total++;
-            }
+            Object.keys(item || {}).forEach(key => {
+                if (/^nama_anak\d+$/.test(key) && item[key]) total++;
+            });
 
             return total;
         }
@@ -2136,15 +2289,17 @@ form .btn-lg{min-height:46px;font-size:clamp(.82rem,.15vw + .78rem,.94rem)!impor
                     });
                 }
 
-                for (let i = 1; i <= 4; i++) {
+                const childIndexes = Object.keys(item || {})
+                    .map(key => { const m = key.match(/^nama_anak(\d+)$/); return m ? Number(m[1]) : null; })
+                    .filter(Number.isFinite)
+                    .sort((a, b) => a - b);
+
+                childIndexes.forEach(i => {
                     const nama = item["nama_anak" + i];
                     const tgl = item["tgl_anak" + i];
                     const jk = item["jk_anak" + i];
-
-                    if (nama && tgl && jk) {
-                        anggota.push({ jk, tgl });
-                    }
-                }
+                    if (nama && tgl && jk) anggota.push({ jk, tgl });
+                });
 
                 anggota.forEach(person => {
                     const umur = hitungUmur(person.tgl);
@@ -2307,10 +2462,10 @@ form .btn-lg{min-height:46px;font-size:clamp(.82rem,.15vw + .78rem,.94rem)!impor
                     const people = [];
                     if (item.nama_kk) people.push({ nama: item.nama_kk, status: 'Kepala Keluarga' });
                     if (item.nama_istri) people.push({ nama: item.nama_istri, status: 'Istri' });
-                    for (let i = 1; i <= 4; i++) {
-                        const nama = item['nama_anak' + i];
-                        if (nama) people.push({ nama, status: 'Anak ' + i });
-                    }
+                    Object.keys(item || {}).forEach(key => {
+                        const m = key.match(/^nama_anak(\d+)$/);
+                        if (m && item[key]) people.push({ nama: item[key], status: 'Anak ' + m[1] });
+                    });
                     people.forEach(person => result.push({
                         nama: person.nama, status: person.status, rt: rtKey.replace('RT', 'RT '), kk, alamat
                     }));
@@ -2509,6 +2664,28 @@ form .btn-lg{min-height:46px;font-size:clamp(.82rem,.15vw + .78rem,.94rem)!impor
             }
         }
 
+        function formatViewerDateLabel(value) {
+            const raw = String(value ?? '').trim();
+            if (!raw) return raw;
+
+            let date = null;
+            let m = raw.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+            if (m) date = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+
+            if (!date) {
+                m = raw.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})$/);
+                if (m) date = new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1]));
+            }
+
+            if (!date || Number.isNaN(date.getTime())) return raw;
+
+            return date.toLocaleDateString('id-ID', {
+                weekday: 'short',
+                day: 'numeric',
+                month: 'short'
+            });
+        }
+
         function renderViewerFromServer(viewer) {
             if (!viewer) return;
 
@@ -2519,12 +2696,13 @@ form .btn-lg{min-height:46px;font-size:clamp(.82rem,.15vw + .78rem,.94rem)!impor
                 badge.innerText = count + " Pengunjung";
             }
 
-            const labels = normalizeList(viewer.labels);
+            const rawLabels = normalizeList(viewer.labels);
+            const labels = rawLabels.map(formatViewerDateLabel);
             const values = normalizeList(viewer.values);
 
             if (!labels.length || !values.length) return;
 
-            const canvas = document.getElementById("viewerBarChart");
+            const canvas = document.getElementById("viewerLineChart");
             if (!canvas) return;
 
             if (viewerChartInstance) {
@@ -2562,6 +2740,11 @@ form .btn-lg{min-height:46px;font-size:clamp(.82rem,.15vw + .78rem,.94rem)!impor
                         tooltip: {
                             displayColors: false,
                             callbacks: {
+                                title: function(items) {
+                                    const index = items?.[0]?.dataIndex ?? 0;
+                                    const raw = rawLabels[index] ?? labels[index] ?? '';
+                                    return formatViewerDateLabel(raw);
+                                },
                                 label: function(context) {
                                     return " " + Number(context.parsed.y || 0).toLocaleString("id-ID") + " pengunjung";
                                 }
@@ -2583,7 +2766,7 @@ form .btn-lg{min-height:46px;font-size:clamp(.82rem,.15vw + .78rem,.94rem)!impor
                             grid: { display: false },
                             title: {
                                 display: true,
-                                text: "Hari"
+                                text: "Hari & Tanggal"
                             }
                         }
                     }
@@ -2616,6 +2799,7 @@ form .btn-lg{min-height:46px;font-size:clamp(.82rem,.15vw + .78rem,.94rem)!impor
                 await trackViewer();
                 await loadSpreadsheetData();
                 updateDatabaseStatus("online");
+                updateLastOnline();
                 showConnectionStatus(true);
             } catch (error) {
                 console.error(error);
@@ -2632,6 +2816,7 @@ form .btn-lg{min-height:46px;font-size:clamp(.82rem,.15vw + .78rem,.94rem)!impor
                 try {
                     await loadSpreadsheetData();
                     updateDatabaseStatus("online");
+                    updateLastOnline();
                 } catch (error) {
                     updateDatabaseStatus("offline", error.message);
                 }
@@ -3156,6 +3341,57 @@ form .btn-lg{min-height:46px;font-size:clamp(.82rem,.15vw + .78rem,.94rem)!impor
             );
         }
 
+        // ===================== STATUS TERAKHIR ONLINE & LOKASI =====================
+        const LAST_ONLINE_KEY = "rw06_last_online";
+
+        function formatLastOnline(date) {
+            return new Intl.DateTimeFormat("id-ID", {
+                dateStyle: "full",
+                timeStyle: "short",
+                hour12: false
+            }).format(date);
+        }
+
+        function saveLastOnlineLocation(lat, lon) {
+            const data = { timestamp: Date.now(), lat, lon };
+            localStorage.setItem(LAST_ONLINE_KEY, JSON.stringify(data));
+            renderLastOnline(data);
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    pos => {
+                        const latest = { timestamp: Date.now(), lat: pos.coords.latitude, lon: pos.coords.longitude };
+                        localStorage.setItem(LAST_ONLINE_KEY, JSON.stringify(latest));
+                        renderLastOnline(latest);
+                    },
+                    () => renderLastOnline(data),
+                    { enableHighAccuracy: false, timeout: 8000, maximumAge: 300000 }
+                );
+            }
+        }
+
+        function renderLastOnline(data) {
+            const timeEl = document.getElementById("last-online-status");
+            const locEl = document.getElementById("last-online-location");
+            if (!timeEl || !locEl || !data?.timestamp) return;
+            timeEl.innerHTML = '<i class="fa-solid fa-clock me-1"></i>' + escapeHtml(formatLastOnline(new Date(data.timestamp)));
+            if (Number.isFinite(data.lat) && Number.isFinite(data.lon)) {
+                locEl.innerHTML = '<i class="fa-solid fa-location-dot me-1"></i>' + data.lat.toFixed(5) + ', ' + data.lon.toFixed(5);
+                fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${data.lat}&longitude=${data.lon}&localityLanguage=id`)
+                    .then(r => r.ok ? r.json() : null).then(x => {
+                        const place = x && (x.locality || x.city || x.principalSubdivision);
+                        if (place) locEl.innerHTML = '<i class="fa-solid fa-location-dot me-1"></i>' + escapeHtml(place) + ' (' + data.lat.toFixed(5) + ', ' + data.lon.toFixed(5) + ')';
+                    }).catch(() => {});
+            } else {
+                locEl.innerHTML = '<i class="fa-solid fa-location-dot me-1"></i>Lokasi tidak tersedia';
+            }
+        }
+
+        function updateLastOnline() {
+            const existing = localStorage.getItem(LAST_ONLINE_KEY);
+            if (existing) { try { renderLastOnline(JSON.parse(existing)); } catch(e) {} }
+            if (navigator.onLine) saveLastOnlineLocation(null, null);
+        }
+
         // ===================== STATUS DATABASE / OFFLINE =====================
         function updateDatabaseStatus(state, message = "") {
             const el = document.getElementById("database-status");
@@ -3230,6 +3466,66 @@ form .btn-lg{min-height:46px;font-size:clamp(.82rem,.15vw + .78rem,.94rem)!impor
 
     <!-- TEMPLATE SCRIPT UNTUK GENERATE FORM -->
     <script>
+        // Menambahkan data anak secara dinamis tanpa batas jumlah.
+        function tambahAnak(button) {
+            const section = button.closest('form') || button.closest('.card-custom');
+            const container = section.querySelector('.data-anak-container');
+            if (!container) return;
+
+            const items = container.querySelectorAll('.data-anak-item');
+            const next = items.length + 1;
+            const item = document.createElement('div');
+            item.className = 'data-anak-item row g-3 align-items-end';
+            item.dataset.anakIndex = next;
+            item.innerHTML = `
+                <div class="col-md-5">
+                    <label class="form-label">Nama Anak ${next}</label>
+                    <input type="text" class="form-control" name="nama_anak${next}" placeholder="Nama Anak ${next}">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Tgl Lahir</label>
+                    <input type="date" class="form-control" name="tgl_anak${next}">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Jenis Kelamin</label>
+                    <select class="form-select" name="jk_anak${next}">
+                        <option value="">-- Pilih --</option>
+                        <option value="Laki-Laki">Laki-Laki</option>
+                        <option value="Perempuan">Perempuan</option>
+                    </select>
+                </div>
+                <div class="col-md-1">
+                    <button type="button" class="btn btn-outline-danger w-100" title="Hapus Anak ${next}" onclick="hapusAnak(this)">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </div>`;
+            container.appendChild(item);
+        }
+
+        function hapusAnak(button) {
+            const item = button.closest('.data-anak-item');
+            if (!item) return;
+            const container = item.closest('.data-anak-container');
+            if (!container) return;
+            if (container.querySelectorAll('.data-anak-item').length <= 1) {
+                item.querySelectorAll('input, select').forEach(el => el.value = '');
+                return;
+            }
+            item.remove();
+            container.querySelectorAll('.data-anak-item').forEach((el, idx) => {
+                const num = idx + 1;
+                el.dataset.anakIndex = num;
+                const label = el.querySelector('.form-label');
+                const inputs = el.querySelectorAll('input, select');
+                if (label) label.textContent = label.textContent.replace(/Anak \d+$/, 'Anak ' + num);
+                inputs.forEach(input => {
+                    const type = input.name.split('_')[0];
+                    input.name = type + '_anak' + num;
+                    if (input.placeholder) input.placeholder = 'Nama Anak ' + num;
+                });
+            });
+        }
+
         function generateFormHTML(rtName) {
             return `
                 <div class="section-header">Data Kepala Keluarga (Suami)</div>
@@ -3276,26 +3572,31 @@ form .btn-lg{min-height:46px;font-size:clamp(.82rem,.15vw + .78rem,.94rem)!impor
                     </div>
                 </div>
 
-                <div class="section-header">Data Anak (Maksimal 4 Anak)</div>
-                <div class="row g-3">
-                    ${[1, 2, 3, 4].map(num => `
+                <div class="section-header d-flex flex-wrap align-items-center justify-content-between gap-2">
+                    <span><i class="fa-solid fa-children me-2"></i>Data Anak (Jumlah Tidak Dibatasi)</span>
+                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="tambahAnak(this)">
+                        <i class="fa-solid fa-plus me-1"></i>Tambah Anak
+                    </button>
+                </div>
+                <div class="row g-3 data-anak-container">
+                    <div class="data-anak-item row g-3 align-items-end" data-anak-index="1">
                         <div class="col-md-5">
-                            <label class="form-label">Nama Anak ${num}</label>
-                            <input type="text" class="form-control" name="nama_anak${num}" placeholder="Nama Anak ${num}">
+                            <label class="form-label">Nama Anak 1</label>
+                            <input type="text" class="form-control" name="nama_anak1" placeholder="Nama Anak 1">
                         </div>
                         <div class="col-md-4">
                             <label class="form-label">Tgl Lahir</label>
-                            <input type="date" class="form-control" name="tgl_anak${num}">
+                            <input type="date" class="form-control" name="tgl_anak1">
                         </div>
                         <div class="col-md-3">
                             <label class="form-label">Jenis Kelamin</label>
-                            <select class="form-select" name="jk_anak${num}">
+                            <select class="form-select" name="jk_anak1">
                                 <option value="">-- Pilih --</option>
                                 <option value="Laki-Laki">Laki-Laki</option>
                                 <option value="Perempuan">Perempuan</option>
                             </select>
                         </div>
-                    `).join('')}
+                    </div>
                 </div>
 
                 <div class="section-header">Status Kependudukan & Dokumen KK</div>
