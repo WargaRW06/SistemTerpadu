@@ -1400,32 +1400,68 @@ form .btn-lg{min-height:46px;font-size:clamp(.82rem,.15vw + .78rem,.94rem)!impor
 
             <!-- NAVBAR VIEWER & STATUS ONLINE REALTIME -->
             <div class="tab-pane fade" id="viewer-stats" role="tabpanel">
+                <div class="row g-4 mb-1">
+                    <div class="col-6 col-xl-3">
+                        <div class="card card-custom p-3 h-100">
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="rounded-3 bg-primary-subtle text-primary p-2"><i class="fa-solid fa-users"></i></div>
+                                <div><small class="text-muted d-block">Total Pengunjung</small><strong class="fs-4" id="viewer-total-count">0</strong></div>
+                            </div>
+                            <small class="text-muted">Akumulasi kunjungan unik harian</small>
+                        </div>
+                    </div>
+                    <div class="col-6 col-xl-3">
+                        <div class="card card-custom p-3 h-100">
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="rounded-3 bg-success-subtle text-success p-2"><i class="fa-solid fa-calendar-day"></i></div>
+                                <div><small class="text-muted d-block">Pengunjung Hari Ini</small><strong class="fs-4" id="viewer-today-count">0</strong></div>
+                            </div>
+                            <small class="text-muted" id="viewer-today-label">Hari ini</small>
+                        </div>
+                    </div>
+                    <div class="col-6 col-xl-3">
+                        <div class="card card-custom p-3 h-100">
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="rounded-3 bg-info-subtle text-info p-2"><i class="fa-solid fa-location-dot"></i></div>
+                                <div><small class="text-muted d-block">Wilayah Terbanyak</small><strong class="fs-6" id="viewer-top-region">-</strong></div>
+                            </div>
+                            <small class="text-muted" id="viewer-top-region-count">0 kunjungan</small>
+                        </div>
+                    </div>
+                    <div class="col-6 col-xl-3">
+                        <div class="card card-custom p-3 h-100">
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="rounded-3 bg-warning-subtle text-warning p-2"><i class="fa-solid fa-satellite-dish"></i></div>
+                                <div><small class="text-muted d-block">Sedang Online</small><strong class="fs-4" id="active-user-count">0</strong></div>
+                            </div>
+                            <small class="text-muted">Aktif dalam ±5 menit terakhir</small>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="row g-4">
                     <div class="col-lg-8">
                         <div class="card card-custom p-4">
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <div>
-                                    <h5 class="fw-bold mb-0 text-primary"><i class="fa-solid fa-chart-line me-2"></i>Navbar Viewer - Pengunjung Realtime Hari per Hari</h5>
-                                    <small class="text-muted">Grafik garis jumlah pengunjung aplikasi dari hari ke hari</small>
+                                    <h5 class="fw-bold mb-0 text-primary"><i class="fa-solid fa-chart-line me-2"></i>Pengunjung Realtime Hari per Hari</h5>
+                                    <small class="text-muted">Jumlah pembukaan aplikasi berdasarkan pengunjung unik per hari</small>
                                 </div>
                                 <span class="badge bg-danger animate-pulse"><i class="fa-solid fa-circle me-1"></i> LIVE UPDATE</span>
                             </div>
-                            <div style="height: 300px;">
-                                <canvas id="viewerLineChart"></canvas>
-                            </div>
+                            <div class="viewer-chart-box"><canvas id="viewerLineChart"></canvas></div>
                         </div>
                     </div>
-
                     <div class="col-lg-4">
-                        <div class="card card-custom p-4">
+                        <div class="card card-custom p-4 h-100">
                             <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h5 class="fw-bold mb-0 text-primary"><i class="fa-solid fa-users-viewfinder me-2"></i>Sedang Online</h5>
-                                <span class="badge bg-success" id="active-user-count">4 Warga</span>
+                                <div>
+                                    <h5 class="fw-bold mb-0 text-primary"><i class="fa-solid fa-map-location-dot me-2"></i>Wilayah Pengunjung</h5>
+                                    <small class="text-muted">Berdasarkan GPS yang diizinkan oleh pengunjung</small>
+                                </div>
                             </div>
-                            <p class="small text-muted mb-3">Daftar warga/pengurus yang aktif mengakses portal saat ini:</p>
-                            <ul class="list-group list-group-flush small" id="online-users-list">
-                                <!-- Dynamic Render Online Users -->
-                            </ul>
+                            <div style="height:280px"><canvas id="viewerRegionChart"></canvas></div>
+                            <div id="viewer-gps-note" class="small text-muted mt-2"><i class="fa-solid fa-shield-halved me-1"></i>Lokasi hanya dicatat jika pengguna memberikan izin GPS.</div>
                         </div>
                     </div>
                 </div>
@@ -1436,9 +1472,14 @@ form .btn-lg{min-height:46px;font-size:clamp(.82rem,.15vw + .78rem,.94rem)!impor
                 <div class="card card-custom p-4">
                     <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
                         <h4 class="fw-bold mb-0"><i class="fa-regular fa-calendar-check text-primary me-2"></i>Kalender Agenda Kegiatan RW. 06</h4>
-                        <button class="btn btn-sm btn-outline-primary" type="button" onclick="loadAgendaBerita()">
-                            <i class="fa-solid fa-arrows-rotate me-1"></i>Refresh
-                        </button>
+                        <div class="d-flex gap-2">
+                            <button id="agendaAddBtn" class="btn btn-sm btn-primary" type="button" data-auth-role="ADMIN,RT01,RT02,RT03" data-bs-toggle="modal" data-bs-target="#modalAgendaKegiatan">
+                                <i class="fa-solid fa-plus me-1"></i>Tambah Kegiatan
+                            </button>
+                            <button class="btn btn-sm btn-outline-primary" type="button" onclick="loadAgendaBerita(true)">
+                                <i class="fa-solid fa-arrows-rotate me-1"></i>Refresh
+                            </button>
+                        </div>
                     </div>
                     <div class="table-responsive">
                         <table class="table table-hover align-middle">
@@ -1457,6 +1498,50 @@ form .btn-lg{min-height:46px;font-size:clamp(.82rem,.15vw + .78rem,.94rem)!impor
                                 </td></tr>
                             </tbody>
                         </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MODAL TAMBAH AGENDA KEGIATAN -->
+            <div class="modal fade" id="modalAgendaKegiatan" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-centered">
+                    <div class="modal-content border-0 shadow">
+                        <div class="modal-header bg-primary text-white">
+                            <h5 class="modal-title"><i class="fa-solid fa-calendar-plus me-2"></i>Tambah Agenda Kegiatan RW. 06</h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                        </div>
+                        <form id="formAgendaKegiatan" onsubmit="simpanAgendaKegiatan(event)">
+                            <div class="modal-body">
+                                <div id="agendaFormAlert"></div>
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-semibold">Tanggal <span class="text-danger">*</span></label>
+                                        <input id="agendaTanggal" type="date" class="form-control" required>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-semibold">Waktu <span class="text-danger">*</span></label>
+                                        <input id="agendaWaktu" type="time" class="form-control" required>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-semibold">Lokasi</label>
+                                        <input id="agendaLokasi" type="text" class="form-control" maxlength="150" placeholder="Contoh: Balai RW 06">
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label fw-semibold">Nama Kegiatan <span class="text-danger">*</span></label>
+                                        <input id="agendaKegiatan" type="text" class="form-control" maxlength="200" required placeholder="Contoh: Kerja Bakti Lingkungan RW 06">
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label fw-semibold">Keterangan</label>
+                                        <textarea id="agendaKeterangan" class="form-control" rows="3" maxlength="1000" placeholder="Keterangan tambahan kegiatan"></textarea>
+                                    </div>
+                                </div>
+                                <div class="small text-muted mt-3"><i class="fa-solid fa-circle-info me-1"></i>Agenda dapat diinput oleh Admin RW 06, RT 01, RT 02, dan RT 03 setelah login.</div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
+                                <button id="btnSimpanAgenda" type="submit" class="btn btn-primary"><i class="fa-solid fa-floppy-disk me-1"></i>Simpan Kegiatan</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -1838,7 +1923,7 @@ form .btn-lg{min-height:46px;font-size:clamp(.82rem,.15vw + .78rem,.94rem)!impor
          * Contoh:
          * https://script.google.com/macros/s/XXXXXXXX/exec
          */
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzvy_deiPt-dSZ20IhGfXekCfrD6tc6fiUCN4CyHGuRed5WrsS5vG6IdJweFra24XV4pw/exec";
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzSTXW1bxozS71uV6qe26X3zHxjUT6iL7QpgsQrt1mFqjfIOz9beYdEsqrnKo4VWYGLeA/exec";
 
         const RT_KEYS = ["RT01", "RT02", "RT03"];
         const CHART_LABELS = [
@@ -1865,6 +1950,7 @@ form .btn-lg{min-height:46px;font-size:clamp(.82rem,.15vw + .78rem,.94rem)!impor
         };
 
         let viewerChartInstance = null;
+        let viewerRegionChartInstance = null;
         let viewerSessionId = localStorage.getItem("rw06_viewer_session");
         if (!viewerSessionId) {
             viewerSessionId = (crypto.randomUUID ? crypto.randomUUID() :
@@ -2643,14 +2729,51 @@ form .btn-lg{min-height:46px;font-size:clamp(.82rem,.15vw + .78rem,.94rem)!impor
         }
 
         // ===================== VIEWER REALTIME ==================
+        let viewerLocationCache = null;
+        let viewerLocationPromise = null;
+
+        async function getViewerGPS() {
+            if (viewerLocationCache) return viewerLocationCache;
+            if (viewerLocationPromise) return viewerLocationPromise;
+            if (!navigator.geolocation) return null;
+
+            viewerLocationPromise = new Promise(resolve => {
+                navigator.geolocation.getCurrentPosition(async pos => {
+                    const lat = Number(pos.coords.latitude);
+                    const lon = Number(pos.coords.longitude);
+                    let city = "";
+                    let region = "";
+                    try {
+                        const geo = await reverseGeocodeCity(lat, lon);
+                        city = geo.city || "";
+                        region = geo.region || "";
+                    } catch (e) {
+                        console.warn("Reverse geocoding viewer gagal:", e.message);
+                    }
+                    viewerLocationCache = { lat, lon, city, region };
+                    resolve(viewerLocationCache);
+                }, () => resolve(null), {
+                    enableHighAccuracy: false,
+                    timeout: 7000,
+                    maximumAge: 300000
+                });
+            });
+            return viewerLocationPromise;
+        }
+
         async function trackViewer() {
             try {
                 const ua = navigator.userAgent || "";
-
-                await apiGet("trackViewer", {
-                    session: viewerSessionId,
-                    ua: ua
-                });
+                const gps = await getViewerGPS();
+                const params = { session: viewerSessionId, ua: ua };
+                if (gps) {
+                    params.lat = String(gps.lat);
+                    params.lon = String(gps.lon);
+                    params.city = gps.city || "";
+                    params.region = gps.region || "";
+                }
+                const result = await apiGet("trackViewer", params);
+                if (result && result.viewer) renderViewerFromServer(result.viewer);
             } catch (error) {
                 console.warn("Viewer tidak tercatat:", error.message);
             }
@@ -2681,89 +2804,69 @@ form .btn-lg{min-height:46px;font-size:clamp(.82rem,.15vw + .78rem,.94rem)!impor
         function renderViewerFromServer(viewer) {
             if (!viewer) return;
 
-            const count = Number(viewer.active_count);
+            const activeCount = Number(viewer.active_count);
+            const totalCount = Number(viewer.total_count);
+            const todayCount = Number(viewer.today_count);
+            const activeBadge = document.getElementById("active-user-count");
+            const totalEl = document.getElementById("viewer-total-count");
+            const todayEl = document.getElementById("viewer-today-count");
+            const todayLabel = document.getElementById("viewer-today-label");
+            const topRegion = document.getElementById("viewer-top-region");
+            const topRegionCount = document.getElementById("viewer-top-region-count");
 
-            const badge = document.getElementById("active-user-count");
-            if (badge && Number.isFinite(count)) {
-                badge.innerText = count + " Pengunjung";
+            if (activeBadge && Number.isFinite(activeCount)) activeBadge.innerText = activeCount;
+            if (totalEl && Number.isFinite(totalCount)) totalEl.innerText = totalCount.toLocaleString('id-ID');
+            if (todayEl && Number.isFinite(todayCount)) todayEl.innerText = todayCount.toLocaleString('id-ID');
+            if (todayLabel && viewer.today_label) todayLabel.innerText = viewer.today_label;
+
+            const regions = normalizeList(viewer.regions);
+            if (regions.length) {
+                const top = regions[0];
+                if (topRegion) topRegion.innerText = top.label || "-";
+                if (topRegionCount) topRegionCount.innerText = (Number(top.count) || 0).toLocaleString('id-ID') + " kunjungan";
+            } else {
+                if (topRegion) topRegion.innerText = "Belum tersedia";
+                if (topRegionCount) topRegionCount.innerText = "Belum ada data GPS";
             }
 
             const rawLabels = normalizeList(viewer.labels);
             const labels = rawLabels.map(formatViewerDateLabel);
-            const values = normalizeList(viewer.values);
-
-            if (!labels.length || !values.length) return;
-
+            const values = normalizeList(viewer.values).map(v => Number(v) || 0);
             const canvas = document.getElementById("viewerLineChart");
-            if (!canvas) return;
-
-            if (viewerChartInstance) {
-                viewerChartInstance.destroy();
+            if (canvas && labels.length && values.length) {
+                if (viewerChartInstance) viewerChartInstance.destroy();
+                viewerChartInstance = new Chart(canvas.getContext("2d"), {
+                    type: "line",
+                    data: { labels, datasets: [{
+                        label: "Pengunjung per Hari", data: values,
+                        borderColor: "#1e3c72", backgroundColor: "rgba(30,60,114,.12)",
+                        borderWidth: 3, fill: true, tension: .35, pointRadius: 4, pointHoverRadius: 6,
+                        pointBackgroundColor: "#fff", pointBorderColor: "#1e3c72", pointBorderWidth: 2
+                    }]},
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        interaction: { mode: "index", intersect: false },
+                        plugins: { legend: { display: false }, tooltip: { displayColors: false,
+                            callbacks: { label: c => " " + (Number(c.raw)||0).toLocaleString('id-ID') + " pengunjung" }
+                        }},
+                        scales: { y: { beginAtZero: true, ticks: { precision: 0 }, title: { display: true, text: "Jumlah pengunjung" } }, x: { title: { display: true, text: "Hari & tanggal" } } }
+                    }
+                });
             }
 
-            viewerChartInstance = new Chart(canvas.getContext("2d"), {
-                type: "line",
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: "Pengunjung per Hari",
-                        data: values,
-                        borderColor: "#1e3c72",
-                        backgroundColor: "rgba(30, 60, 114, 0.12)",
-                        borderWidth: 3,
-                        fill: true,
-                        tension: 0.35,
-                        pointRadius: 4,
-                        pointHoverRadius: 6,
-                        pointBorderWidth: 2,
-                        pointBackgroundColor: "#ffffff",
-                        pointBorderColor: "#1e3c72"
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    interaction: {
-                        mode: "index",
-                        intersect: false
-                    },
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            displayColors: false,
-                            callbacks: {
-                                title: function(items) {
-                                    const index = items?.[0]?.dataIndex ?? 0;
-                                    const raw = rawLabels[index] ?? labels[index] ?? '';
-                                    return formatViewerDateLabel(raw);
-                                },
-                                label: function(context) {
-                                    return " " + Number(context.parsed.y || 0).toLocaleString("id-ID") + " pengunjung";
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                precision: 0
-                            },
-                            title: {
-                                display: true,
-                                text: "Jumlah Pengunjung"
-                            }
-                        },
-                        x: {
-                            grid: { display: false },
-                            title: {
-                                display: true,
-                                text: "Hari & Tanggal"
-                            }
-                        }
+            const regionCanvas = document.getElementById("viewerRegionChart");
+            if (regionCanvas && regions.length) {
+                const topRegions = regions.slice(0, 8);
+                if (viewerRegionChartInstance) viewerRegionChartInstance.destroy();
+                viewerRegionChartInstance = new Chart(regionCanvas.getContext("2d"), {
+                    type: "bar",
+                    data: { labels: topRegions.map(r => r.label || "Tidak diketahui"), datasets: [{ label: "Kunjungan", data: topRegions.map(r => Number(r.count)||0), borderWidth: 1 }] },
+                    options: { indexAxis: "y", responsive: true, maintainAspectRatio: false,
+                        plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => " " + (Number(c.raw)||0).toLocaleString('id-ID') + " kunjungan" } } },
+                        scales: { x: { beginAtZero: true, ticks: { precision: 0 } }, y: { grid: { display: false } } }
                     }
-                }
-            });
+                });
+            }
         }
 
         let viewerRefreshInFlight = null;
@@ -2780,8 +2883,9 @@ form .btn-lg{min-height:46px;font-size:clamp(.82rem,.15vw + .78rem,.94rem)!impor
             return viewerRefreshInFlight;
         }
 
-        function renderViewerChart() {
-            refreshViewer();
+        async function renderViewerChart() {
+            await trackViewer();
+            await refreshViewer();
         }
 
         // ===================== AGENDA & BERITA =================
@@ -2799,13 +2903,13 @@ form .btn-lg{min-height:46px;font-size:clamp(.82rem,.15vw + .78rem,.94rem)!impor
             try {
                 await Promise.all([loadSpreadsheetData(true), trackViewer()]);
                 await refreshViewer();
-                updateDatabaseStatus("online"); updateLastOnline(); showConnectionStatus(true);
+                updateDatabaseStatus("online"); updateLastOnline(false); showConnectionStatus(true);
             } catch (error) { console.error(error); updateDatabaseStatus("offline", error.message); }
 
             // Data warga tidak lagi dibaca setiap 30 detik. Refresh 2 menit dan hanya satu request aktif.
             setInterval(async function() {
                 if (!navigator.onLine) { updateDatabaseStatus("offline", "Koneksi internet terputus."); return; }
-                try { await loadSpreadsheetData(true); updateDatabaseStatus("online"); updateLastOnline(); }
+                try { await loadSpreadsheetData(true); updateDatabaseStatus("online"); updateLastOnline(false); }
                 catch (error) { updateDatabaseStatus("offline", error.message); }
             }, 120000);
 
@@ -2865,6 +2969,49 @@ form .btn-lg{min-height:46px;font-size:clamp(.82rem,.15vw + .78rem,.94rem)!impor
             } finally { agendaLoadInFlight = null; }
             })();
             return agendaLoadInFlight;
+        }
+
+        async function simpanAgendaKegiatan(event) {
+            event.preventDefault();
+            if (!rw06AuthUser || !['ADMIN','RT01','RT02','RT03'].includes(rw06AuthUser.role)) {
+                alert('Silakan login sebagai Admin RW 06 atau RT 01/02/03 untuk menambahkan agenda.');
+                return;
+            }
+            const btn = document.getElementById('btnSimpanAgenda');
+            const alertEl = document.getElementById('agendaFormAlert');
+            const payload = {
+                action: 'saveAgenda',
+                tanggal: document.getElementById('agendaTanggal').value,
+                waktu: document.getElementById('agendaWaktu').value,
+                kegiatan: document.getElementById('agendaKegiatan').value.trim(),
+                lokasi: document.getElementById('agendaLokasi').value.trim(),
+                keterangan: document.getElementById('agendaKeterangan').value.trim()
+            };
+            if (!payload.tanggal || !payload.waktu || !payload.kegiatan) {
+                alertEl.innerHTML = '<div class="alert alert-danger">Tanggal, waktu, dan nama kegiatan wajib diisi.</div>';
+                return;
+            }
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i>Menyimpan...';
+            alertEl.innerHTML = '<div class="alert alert-info">Menyimpan agenda ke database...</div>';
+            try {
+                const result = await apiPost(payload);
+                if (!result || result.status !== 'success') throw new Error(result?.message || 'Gagal menyimpan agenda.');
+                document.getElementById('formAgendaKegiatan').reset();
+                alertEl.innerHTML = '<div class="alert alert-success"><i class="fa-solid fa-circle-check me-1"></i>Agenda berhasil disimpan.</div>';
+                agendaLastLoadedAt = 0;
+                await loadAgendaBerita(true);
+                setTimeout(() => {
+                    bootstrap.Modal.getInstance(document.getElementById('modalAgendaKegiatan'))?.hide();
+                    alertEl.innerHTML = '';
+                }, 700);
+            } catch (error) {
+                console.error('Gagal menyimpan agenda:', error);
+                alertEl.innerHTML = '<div class="alert alert-danger"><i class="fa-solid fa-triangle-exclamation me-1"></i>' + escapeHtml(error.message) + '</div>';
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-floppy-disk me-1"></i>Simpan Kegiatan';
+            }
         }
 
         function renderAgenda(items) {
@@ -3048,6 +3195,14 @@ form .btn-lg{min-height:46px;font-size:clamp(.82rem,.15vw + .78rem,.94rem)!impor
 
         document.addEventListener("DOMContentLoaded", function() {
             loadAgendaBerita();
+            const agendaModal = document.getElementById('modalAgendaKegiatan');
+            if (agendaModal) agendaModal.addEventListener('show.bs.modal', function() {
+                const dateInput = document.getElementById('agendaTanggal');
+                if (dateInput && !dateInput.value) {
+                    const now = new Date();
+                    dateInput.value = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0,10);
+                }
+            });
             const isi = document.getElementById("postingIsi");
             const counter = document.getElementById("postingCounter");
             if (isi && counter) {
@@ -3333,9 +3488,12 @@ form .btn-lg{min-height:46px;font-size:clamp(.82rem,.15vw + .78rem,.94rem)!impor
         }
 
         // ===================== STATUS TERAKHIR ONLINE & LOKASI =====================
-        const LAST_ONLINE_KEY = "rw06_last_online";
+        // Versi aman: tidak bergantung pada login/database dan tidak menunggu geolocation.
+        const LAST_ONLINE_KEY = "rw06_last_online_v2";
+        let lastOnlineWriteInFlight = false;
 
         function formatLastOnline(date) {
+            if (!(date instanceof Date) || isNaN(date.getTime())) return "Waktu tidak valid";
             return new Intl.DateTimeFormat("id-ID", {
                 dateStyle: "full",
                 timeStyle: "short",
@@ -3343,45 +3501,106 @@ form .btn-lg{min-height:46px;font-size:clamp(.82rem,.15vw + .78rem,.94rem)!impor
             }).format(date);
         }
 
-        function saveLastOnlineLocation(lat, lon) {
-            const data = { timestamp: Date.now(), lat, lon };
-            localStorage.setItem(LAST_ONLINE_KEY, JSON.stringify(data));
+        function getStoredLastOnline() {
+            try {
+                const raw = localStorage.getItem(LAST_ONLINE_KEY);
+                if (!raw) return null;
+                const data = JSON.parse(raw);
+                return data && Number.isFinite(Number(data.timestamp)) ? data : null;
+            } catch (e) {
+                console.warn("Gagal membaca status terakhir online:", e);
+                return null;
+            }
+        }
+
+        function saveLastOnlineLocation(lat = null, lon = null) {
+            const data = {
+                timestamp: Date.now(),
+                lat: Number.isFinite(Number(lat)) ? Number(lat) : null,
+                lon: Number.isFinite(Number(lon)) ? Number(lon) : null
+            };
+
+            try {
+                localStorage.setItem(LAST_ONLINE_KEY, JSON.stringify(data));
+            } catch (e) {
+                console.warn("LocalStorage tidak tersedia:", e);
+            }
             renderLastOnline(data);
-            if (navigator.geolocation) {
+
+            // Lokasi hanya pelengkap. Widget waktu tetap berfungsi walaupun izin lokasi ditolak.
+            if (navigator.geolocation && !lastOnlineWriteInFlight) {
+                lastOnlineWriteInFlight = true;
                 navigator.geolocation.getCurrentPosition(
                     pos => {
-                        const latest = { timestamp: Date.now(), lat: pos.coords.latitude, lon: pos.coords.longitude };
-                        localStorage.setItem(LAST_ONLINE_KEY, JSON.stringify(latest));
+                        lastOnlineWriteInFlight = false;
+                        const latest = {
+                            timestamp: Date.now(),
+                            lat: Number(pos.coords.latitude),
+                            lon: Number(pos.coords.longitude)
+                        };
+                        try { localStorage.setItem(LAST_ONLINE_KEY, JSON.stringify(latest)); } catch (e) {}
                         renderLastOnline(latest);
                     },
-                    () => renderLastOnline(data),
-                    { enableHighAccuracy: false, timeout: 8000, maximumAge: 300000 }
+                    () => { lastOnlineWriteInFlight = false; renderLastOnline(data); },
+                    { enableHighAccuracy: false, timeout: 5000, maximumAge: 300000 }
                 );
             }
+            return data;
         }
 
         function renderLastOnline(data) {
             const timeEl = document.getElementById("last-online-status");
             const locEl = document.getElementById("last-online-location");
-            if (!timeEl || !locEl || !data?.timestamp) return;
-            timeEl.innerHTML = '<i class="fa-solid fa-clock me-1"></i>' + escapeHtml(formatLastOnline(new Date(data.timestamp)));
-            if (Number.isFinite(data.lat) && Number.isFinite(data.lon)) {
-                locEl.innerHTML = '<i class="fa-solid fa-location-dot me-1"></i>' + data.lat.toFixed(5) + ', ' + data.lon.toFixed(5);
-                fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${data.lat}&longitude=${data.lon}&localityLanguage=id`)
-                    .then(r => r.ok ? r.json() : null).then(x => {
+            if (!timeEl || !locEl || !data) return;
+
+            const timestamp = Number(data.timestamp);
+            if (!Number.isFinite(timestamp) || timestamp <= 0) {
+                timeEl.innerHTML = '<i class="fa-solid fa-circle-exclamation me-1"></i> Belum ada data';
+                locEl.innerHTML = '<i class="fa-solid fa-location-dot me-1"></i> Menunggu aktivitas online';
+                return;
+            }
+
+            timeEl.innerHTML = '<i class="fa-solid fa-clock me-1"></i>' + escapeHtml(formatLastOnline(new Date(timestamp)));
+
+            const lat = Number(data.lat);
+            const lon = Number(data.lon);
+            if (Number.isFinite(lat) && Number.isFinite(lon)) {
+                const coords = lat.toFixed(5) + ", " + lon.toFixed(5);
+                locEl.innerHTML = '<i class="fa-solid fa-location-dot me-1"></i>' + coords;
+                fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=id`)
+                    .then(r => r.ok ? r.json() : null)
+                    .then(x => {
                         const place = x && (x.locality || x.city || x.principalSubdivision);
-                        if (place) locEl.innerHTML = '<i class="fa-solid fa-location-dot me-1"></i>' + escapeHtml(place) + ' (' + data.lat.toFixed(5) + ', ' + data.lon.toFixed(5) + ')';
-                    }).catch(() => {});
+                        if (place) locEl.innerHTML = '<i class="fa-solid fa-location-dot me-1"></i>' + escapeHtml(place) + ' (' + coords + ')';
+                    })
+                    .catch(() => {});
             } else {
                 locEl.innerHTML = '<i class="fa-solid fa-location-dot me-1"></i>Lokasi tidak tersedia';
             }
         }
 
-        function updateLastOnline() {
-            const existing = localStorage.getItem(LAST_ONLINE_KEY);
-            if (existing) { try { renderLastOnline(JSON.parse(existing)); } catch(e) {} }
-            if (navigator.onLine) saveLastOnlineLocation(null, null);
+        function updateLastOnline(force = false) {
+            const existing = getStoredLastOnline();
+            if (existing) renderLastOnline(existing);
+
+            // Catat aktivitas online SEGERA, tanpa menunggu loadSpreadsheetData().
+            if (navigator.onLine && (force || !existing || Date.now() - Number(existing.timestamp) > 1000)) {
+                saveLastOnlineLocation(null, null);
+            }
         }
+
+        // Jalankan terpisah dari login/database agar widget selalu hidup.
+        document.addEventListener("DOMContentLoaded", function() {
+            updateLastOnline(true);
+            window.addEventListener("online", () => updateLastOnline(true));
+            window.addEventListener("offline", () => {
+                const existing = getStoredLastOnline();
+                if (existing) renderLastOnline(existing);
+            });
+            document.addEventListener("visibilitychange", function() {
+                if (!document.hidden) updateLastOnline(true);
+            });
+        });
 
         // ===================== STATUS DATABASE / OFFLINE =====================
         function updateDatabaseStatus(state, message = "") {
