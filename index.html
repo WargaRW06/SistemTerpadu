@@ -1838,7 +1838,7 @@ form .btn-lg{min-height:46px;font-size:clamp(.82rem,.15vw + .78rem,.94rem)!impor
          * Contoh:
          * https://script.google.com/macros/s/XXXXXXXX/exec
          */
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbywWPyhVMWcBsfztbv4XM0iOZOKwjYWxvDl-4d37Z8K07rHpw3I_TABFus0lOyWPEVMOQ/exec";
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx9IY3cEcaMHsC3szGpdNY5WJR3vpbXKpWG8p4DaC4LZk7EVxATojmlA50MVlvNLJeGGQ/exec";
 
         const RT_KEYS = ["RT01", "RT02", "RT03"];
         const CHART_LABELS = [
@@ -1910,43 +1910,32 @@ form .btn-lg{min-height:46px;font-size:clamp(.82rem,.15vw + .78rem,.94rem)!impor
             return result;
         }
 
+        const apiInFlight = new Map();
         async function apiGet(action, params = {}) {
             assertScriptUrl();
-
-            const query = new URLSearchParams({
-                action: action,
-                _: String(Date.now()),
-                token: localStorage.getItem('rw06_auth_token') || '',
-                ...params
-            });
-
+            const query = new URLSearchParams({ action: action, _: String(Date.now()), token: localStorage.getItem('rw06_auth_token') || '', ...params });
             const url = SCRIPT_URL + "?" + query.toString();
-
-            const response = await fetch(url, {
-                method: "GET",
-                cache: "no-store",
-                redirect: "follow"
-            });
-
-            const text = await response.text();
-
-            if (!response.ok) {
-                throw new Error("HTTP " + response.status);
-            }
-
-            let json;
-            try {
-                json = JSON.parse(text);
-            } catch (err) {
-                console.error("Respons Apps Script:", text);
-                throw new Error("Respons Apps Script bukan JSON.");
-            }
-
-            if (json.status && json.status !== "success") {
-                throw new Error(json.message || "Apps Script mengembalikan error.");
-            }
-
-            return json;
+            const dedupeKey = action + '|' + JSON.stringify(params) + '|' + (localStorage.getItem('rw06_auth_token') || '');
+            if (apiInFlight.has(dedupeKey)) return apiInFlight.get(dedupeKey);
+            const request = (async () => {
+                const controller = new AbortController();
+                const timer = setTimeout(() => controller.abort(), 20000);
+                try {
+                    const response = await fetch(url, { method: "GET", cache: "no-store", redirect: "follow", signal: controller.signal });
+                    const text = await response.text();
+                    if (!response.ok) throw new Error("HTTP " + response.status);
+                    let json;
+                    try { json = JSON.parse(text); }
+                    catch (err) { console.error("Respons Apps Script:", text); throw new Error("Respons Apps Script bukan JSON."); }
+                    if (json.status && json.status !== "success") throw new Error(json.message || "Apps Script mengembalikan error.");
+                    return json;
+                } catch (err) {
+                    if (err.name === 'AbortError') throw new Error('Koneksi database terlalu lama merespons. Silakan coba lagi.');
+                    throw err;
+                } finally { clearTimeout(timer); }
+            })();
+            apiInFlight.set(dedupeKey, request);
+            try { return await request; } finally { apiInFlight.delete(dedupeKey); }
         }
 
         /*
@@ -2034,54 +2023,35 @@ form .btn-lg{min-height:46px;font-size:clamp(.82rem,.15vw + .78rem,.94rem)!impor
             }
         }
 
-        async function loadSpreadsheetData() {
+        let dashboardLoadInFlight = null;
+        let lastDashboardLoadAt = 0;
+        async function loadSpreadsheetData(force = false) {
+            if (dashboardLoadInFlight) return dashboardLoadInFlight;
+            const now = Date.now();
+            if (!force && dashboardData && now - lastDashboardLoadAt < 60000) return dashboardData;
             RT_KEYS.forEach(rt => {
                 const tbody = document.getElementById("table-" + rt);
-                if (tbody) {
-                    tbody.innerHTML =
-                        '<tr><td colspan="7" class="text-center text-muted">' +
-                        '<i class="fa-solid fa-spinner fa-spin me-2"></i>Mengambil data dari Spreadsheet...</td></tr>';
-                }
+                if (tbody && !dashboardData) tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted"><i class="fa-solid fa-spinner fa-spin me-2"></i>Mengambil data dari Spreadsheet...</td></tr>';
             });
-
-            try {
-                const res = await apiGet("getData");
-
-                dashboardData = res;
-                dashboardData.warga = dashboardData.warga || {
-                    RT01: [], RT02: [], RT03: []
-                };
-
-                demografiData = normalizeDemografi(res.demografi);
-
-                RT_KEYS.forEach(rt => {
-                    renderTable(rt, normalizeList(dashboardData.warga[rt]));
-                    updateRTSummary(rt, normalizeList(dashboardData.warga[rt]));
-                });
-
-                updateTotalCard(dashboardData);
-                renderActiveChartIfNeeded();
-                renderViewerFromServer(res.viewer);
-                updateDatabaseStatus("online");
-
-            } catch (error) {
-                console.error("Gagal memuat data:", error);
-
-                RT_KEYS.forEach(rt => {
-                    const tbody = document.getElementById("table-" + rt);
-                    if (tbody) {
-                        tbody.innerHTML =
-                            '<tr><td colspan="7" class="text-center text-danger">' +
-                            '<i class="fa-solid fa-triangle-exclamation me-2"></i>' +
-                            escapeHtml(error.message) +
-                            "</td></tr>";
-                    }
-                });
-
-                showConnectionStatus(false, error.message);
-                updateDatabaseStatus("offline", error.message);
-                throw error;
-            }
+            dashboardLoadInFlight = (async () => {
+                try {
+                    const res = await apiGet("getData");
+                    dashboardData = res;
+                    dashboardData.warga = dashboardData.warga || {RT01:[],RT02:[],RT03:[]};
+                    demografiData = normalizeDemografi(res.demografi);
+                    RT_KEYS.forEach(rt => { renderTable(rt, normalizeList(dashboardData.warga[rt])); updateRTSummary(rt, normalizeList(dashboardData.warga[rt])); });
+                    updateTotalCard(dashboardData);
+                    renderActiveChartIfNeeded();
+                    updateDatabaseStatus("online");
+                    lastDashboardLoadAt = Date.now();
+                    return res;
+                } catch (error) {
+                    console.error("Gagal memuat data:", error);
+                    if (!dashboardData) RT_KEYS.forEach(rt => { const tbody=document.getElementById("table-"+rt); if(tbody)tbody.innerHTML='<tr><td colspan="7" class="text-center text-danger"><i class="fa-solid fa-triangle-exclamation me-2"></i>'+escapeHtml(error.message)+"</td></tr>"; });
+                    showConnectionStatus(false, error.message); updateDatabaseStatus("offline", error.message); throw error;
+                } finally { dashboardLoadInFlight = null; }
+            })();
+            return dashboardLoadInFlight;
         }
 
         function showConnectionStatus(ok, message) {
@@ -2791,13 +2761,18 @@ form .btn-lg{min-height:46px;font-size:clamp(.82rem,.15vw + .78rem,.94rem)!impor
             });
         }
 
+        let viewerRefreshInFlight = null;
         async function refreshViewer() {
-            try {
-                const res = await apiGet("getData");
-                renderViewerFromServer(res.viewer);
-            } catch (error) {
-                console.warn("Gagal memperbarui viewer:", error.message);
-            }
+            if (viewerRefreshInFlight) return viewerRefreshInFlight;
+            viewerRefreshInFlight = (async () => {
+                try {
+                    const res = await apiGet("getViewerStats");
+                    renderViewerFromServer(res.viewer);
+                    return res;
+                } catch (error) { console.warn("Gagal memperbarui viewer:", error.message); }
+                finally { viewerRefreshInFlight = null; }
+            })();
+            return viewerRefreshInFlight;
         }
 
         function renderViewerChart() {
@@ -2816,49 +2791,35 @@ form .btn-lg{min-height:46px;font-size:clamp(.82rem,.15vw + .78rem,.94rem)!impor
                 return;
             }
             updateDatabaseStatus("checking");
-
             try {
-                await trackViewer();
-                await loadSpreadsheetData();
-                updateDatabaseStatus("online");
-                updateLastOnline();
-                showConnectionStatus(true);
-            } catch (error) {
-                console.error(error);
-                updateDatabaseStatus("offline", error.message);
-            }
+                await Promise.all([loadSpreadsheetData(true), trackViewer()]);
+                await refreshViewer();
+                updateDatabaseStatus("online"); updateLastOnline(); showConnectionStatus(true);
+            } catch (error) { console.error(error); updateDatabaseStatus("offline", error.message); }
 
-            // Sinkronisasi dashboard berkala.
+            // Data warga tidak lagi dibaca setiap 30 detik. Refresh 2 menit dan hanya satu request aktif.
             setInterval(async function() {
-                if (!navigator.onLine) {
-                    updateDatabaseStatus("offline", "Koneksi internet terputus.");
-                    return;
-                }
-
-                try {
-                    await loadSpreadsheetData();
-                    updateDatabaseStatus("online");
-                    updateLastOnline();
-                } catch (error) {
-                    updateDatabaseStatus("offline", error.message);
-                }
-            }, 30000);
+                if (!navigator.onLine) { updateDatabaseStatus("offline", "Koneksi internet terputus."); return; }
+                try { await loadSpreadsheetData(true); updateDatabaseStatus("online"); updateLastOnline(); }
+                catch (error) { updateDatabaseStatus("offline", error.message); }
+            }, 120000);
 
             setInterval(trackViewer, 60000);
             setInterval(refreshViewer, 30000);
 
-            // Cek status database saat halaman aktif kembali.
             document.addEventListener("visibilitychange", function() {
-                if (!document.hidden) {
-                    checkDatabaseConnection();
-                }
+                if (!document.hidden) checkDatabaseConnection();
             });
         });
     </script>
 
     <!-- SCRIPT DINAMIS AGENDA & BERITA -->
     <script>
-        async function loadAgendaBerita() {
+        let agendaLoadInFlight = null;
+        let agendaLastLoadedAt = 0;
+        async function loadAgendaBerita(force = false) {
+            if (agendaLoadInFlight) return agendaLoadInFlight;
+            if (!force && agendaLastLoadedAt && Date.now() - agendaLastLoadedAt < 60000) return;
             const agendaEl = document.getElementById("agenda-list");
             const beritaEl = document.getElementById("berita-list");
 
@@ -2874,11 +2835,12 @@ form .btn-lg{min-height:46px;font-size:clamp(.82rem,.15vw + .78rem,.94rem)!impor
                     '<i class="fa-solid fa-spinner fa-spin me-2"></i>Memuat berita...</div>';
             }
 
+            agendaLoadInFlight = (async () => {
             try {
                 const result = await apiGet("getAgendaBerita");
-
                 renderAgenda(result.agenda || []);
                 renderBerita(result.berita || []);
+                agendaLastLoadedAt = Date.now();
             } catch (error) {
                 console.error("Gagal memuat Agenda/Berita:", error);
 
@@ -2895,7 +2857,9 @@ form .btn-lg{min-height:46px;font-size:clamp(.82rem,.15vw + .78rem,.94rem)!impor
                         '<i class="fa-solid fa-triangle-exclamation me-2"></i>' +
                         escapeHtml(error.message) + '</div></div>';
                 }
-            }
+            } finally { agendaLoadInFlight = null; }
+            })();
+            return agendaLoadInFlight;
         }
 
         function renderAgenda(items) {
@@ -3060,7 +3024,7 @@ form .btn-lg{min-height:46px;font-size:clamp(.82rem,.15vw + .78rem,.94rem)!impor
                 phoneInput.classList.remove('phone-verified', 'phone-invalid');
                 document.getElementById('phoneVerificationStatus').innerHTML = '';
                 document.getElementById("postingCounter").textContent = "0";
-                await loadAgendaBerita();
+                await loadAgendaBerita(true);
 
                 setTimeout(function() {
                     const modalEl = document.getElementById("modalPostingWarga");
@@ -3449,7 +3413,7 @@ form .btn-lg{min-height:46px;font-size:clamp(.82rem,.15vw + .78rem,.94rem)!impor
 
             try {
                 // getData dilindungi login. Sebelum login gunakan health check.
-                const action = authToken() ? "getData" : "health";
+                const action = "health";
                 const result = await apiGet(action);
                 if (!result || result.status !== "success") {
                     throw new Error(result?.message || "Respons database tidak valid.");
