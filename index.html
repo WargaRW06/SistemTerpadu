@@ -1838,7 +1838,7 @@ form .btn-lg{min-height:46px;font-size:clamp(.82rem,.15vw + .78rem,.94rem)!impor
          * Contoh:
          * https://script.google.com/macros/s/XXXXXXXX/exec
          */
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx9IY3cEcaMHsC3szGpdNY5WJR3vpbXKpWG8p4DaC4LZk7EVxATojmlA50MVlvNLJeGGQ/exec";
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzvy_deiPt-dSZ20IhGfXekCfrD6tc6fiUCN4CyHGuRed5WrsS5vG6IdJweFra24XV4pw/exec";
 
         const RT_KEYS = ["RT01", "RT02", "RT03"];
         const CHART_LABELS = [
@@ -1973,8 +1973,9 @@ form .btn-lg{min-height:46px;font-size:clamp(.82rem,.15vw + .78rem,.94rem)!impor
 
         // ===================== DOKUMEN KK TERPROTEKSI =====================
         async function bukaKKDenganPassword(fileId) {
-            if (!fileId) {
-                alert("Dokumen KK tidak tersedia.");
+            const safeFileId = String(fileId || "").trim();
+            if (!/^[A-Za-z0-9_-]{10,}$/.test(safeFileId)) {
+                alert("ID dokumen KK tidak valid.");
                 return;
             }
 
@@ -1984,6 +1985,10 @@ form .btn-lg{min-height:46px;font-size:clamp(.82rem,.15vw + .78rem,.94rem)!impor
             );
 
             if (password === null) return;
+            if (!String(password).trim()) {
+                alert("Password wajib diisi.");
+                return;
+            }
 
             const viewerWindow = window.open("", "_blank");
             if (!viewerWindow) {
@@ -2000,7 +2005,7 @@ form .btn-lg{min-height:46px;font-size:clamp(.82rem,.15vw + .78rem,.94rem)!impor
             try {
                 const result = await apiPost({
                     action: "openKK",
-                    fileId: fileId,
+                    fileId: safeFileId,
                     password: password
                 });
 
