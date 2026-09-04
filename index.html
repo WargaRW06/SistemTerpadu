@@ -1216,9 +1216,18 @@ form .btn-lg{min-height:46px;font-size:clamp(.82rem,.15vw + .78rem,.94rem)!impor
 }
 
 </style>
+
+<style id="multiUserStyles">
+.user-menu-wrap{margin-left:auto;display:flex;align-items:center;gap:8px}.user-status{font-size:.82rem;font-weight:700;padding:.45rem .7rem;border-radius:999px;background:#eef5ff;color:#185abc}.multi-user-btn{border:0;border-radius:12px;padding:.55rem .8rem;font-weight:700;box-shadow:0 3px 12px rgba(0,0,0,.08)}
+@media(max-width:991px){.user-menu-wrap{width:100%;justify-content:flex-end;padding:.35rem 0}.user-status{display:none}}
+.role-hidden{display:none!important}
+</style>
+
+<style>
+#multiUserBadge{display:none}.multi-user-badge{display:inline-flex;align-items:center;gap:.45rem;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.2);padding:.35rem .65rem;border-radius:999px;font-size:.72rem}.multi-user-badge .dot{width:8px;height:8px;border-radius:50%;background:#20c997;box-shadow:0 0 8px #20c997}.auth-modal-icon{width:58px;height:58px;border-radius:18px;display:flex;align-items:center;justify-content:center;margin:auto;background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;font-size:1.35rem;box-shadow:0 10px 24px rgba(37,99,235,.22)}.role-chip{font-size:.68rem;padding:.28rem .55rem;border-radius:999px;background:#eef2ff;color:#3730a3;font-weight:800}.user-admin-only{display:none!important}
+</style>
 </head>
 <body>
-    <!-- MERGED INDEX: dashboard utama + pengelolaan agenda pengurus RW/RT -->
 
     <!-- HEADER UTAMA -->
     <header class="hero-header">
@@ -1324,21 +1333,27 @@ form .btn-lg{min-height:46px;font-size:clamp(.82rem,.15vw + .78rem,.94rem)!impor
                         <button class="nav-link" id="viewer-tab" data-bs-toggle="pill" data-bs-target="#viewer-stats" type="button" onclick="renderViewerChart()"><i class="fa-solid fa-chart-simple me-1"></i> Viewer Realtime</button>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="rw-tab" data-bs-toggle="pill" data-bs-target="#rw-total" type="button" onclick="loadChartTotalRW()"><i class="fa-solid fa-chart-line me-1"></i> Warga RW 06</button>
+                        <button class="nav-link" id="rw-tab" data-requires-login data-auth-role="ADMIN,RT01,RT02,RT03" data-bs-toggle="pill" data-bs-target="#rw-total" type="button" onclick="loadChartTotalRW()"><i class="fa-solid fa-chart-line me-1"></i> Warga RW 06</button>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="search-tab" data-bs-toggle="pill" data-bs-target="#search-warga" type="button" onclick="focusSearchWarga()"><i class="fa-solid fa-magnifying-glass me-1"></i> Cari Warga</button>
+                        <button class="nav-link" id="search-tab" data-requires-login data-auth-role="ADMIN,RT01,RT02,RT03" data-bs-toggle="pill" data-bs-target="#search-warga" type="button" onclick="focusSearchWarga()"><i class="fa-solid fa-magnifying-glass me-1"></i> Cari Warga</button>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="rt01-tab" data-bs-toggle="pill" data-bs-target="#rt01" type="button" onclick="loadChartRT('RT01')"><i class="fa-solid fa-users me-1"></i> RT 01</button>
+                        <button class="nav-link" id="rt01-tab" data-requires-login data-auth-rt="RT01" data-bs-toggle="pill" data-bs-target="#rt01" type="button" onclick="loadChartRT('RT01')"><i class="fa-solid fa-users me-1"></i> RT 01</button>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="rt02-tab" data-bs-toggle="pill" data-bs-target="#rt02" type="button" onclick="loadChartRT('RT02')"><i class="fa-solid fa-users me-1"></i> RT 02</button>
+                        <button class="nav-link" id="rt02-tab" data-requires-login data-auth-rt="RT02" data-bs-toggle="pill" data-bs-target="#rt02" type="button" onclick="loadChartRT('RT02')"><i class="fa-solid fa-users me-1"></i> RT 02</button>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="rt03-tab" data-bs-toggle="pill" data-bs-target="#rt03" type="button" onclick="loadChartRT('RT03')"><i class="fa-solid fa-users me-1"></i> RT 03</button>
+                        <button class="nav-link" id="rt03-tab" data-requires-login data-auth-rt="RT03" data-bs-toggle="pill" data-bs-target="#rt03" type="button" onclick="loadChartRT('RT03')"><i class="fa-solid fa-users me-1"></i> RT 03</button>
                     </li>
                 </ul>
+                <div class="ms-lg-2 my-2 my-lg-0 d-flex justify-content-center align-items-center gap-2">
+                    <span id="multiUserBadge" class="multi-user-badge"><span class="dot"></span><span id="multiUserLabel">Belum Login</span></span>
+                    <button id="multiUserLoginBtn" class="btn btn-primary btn-sm" type="button" onclick="openMultiUserLogin()"><i class="fa-solid fa-right-to-bracket me-1"></i>Login</button>
+                    <button id="multiUserManageBtn" class="btn btn-outline-primary btn-sm d-none" type="button" onclick="openUserManagement()"><i class="fa-solid fa-user-gear me-1"></i>User</button>
+                    <button id="multiUserLogoutBtn" class="btn btn-outline-danger btn-sm d-none" type="button" onclick="logoutMultiUser()"><i class="fa-solid fa-right-from-bracket me-1"></i>Keluar</button>
+                </div>
             </div>
         </div>
     </nav>
@@ -1419,18 +1434,12 @@ form .btn-lg{min-height:46px;font-size:clamp(.82rem,.15vw + .78rem,.94rem)!impor
             <!-- 2. KALENDER AGENDA -->
             <div class="tab-pane fade" id="kalender" role="tabpanel">
                 <div class="card card-custom p-4">
-                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
                         <h4 class="fw-bold mb-0"><i class="fa-regular fa-calendar-check text-primary me-2"></i>Kalender Agenda Kegiatan RW. 06</h4>
-                        <div class="d-flex flex-wrap gap-2">
-                            <button class="btn btn-sm btn-success" type="button" onclick="openAgendaAdminLogin()">
-                                <i class="fa-solid fa-user-shield me-1"></i>Pengurus: Tambah Agenda
-                            </button>
-                            <button class="btn btn-sm btn-outline-primary" type="button" onclick="loadAgendaBerita()">
-                                <i class="fa-solid fa-arrows-rotate me-1"></i>Refresh
-                            </button>
-                        </div>
+                        <button class="btn btn-sm btn-outline-primary" type="button" onclick="loadAgendaBerita()">
+                            <i class="fa-solid fa-arrows-rotate me-1"></i>Refresh
+                        </button>
                     </div>
-                    <div id="agenda-admin-status" class="alert alert-light border d-none py-2 px-3 mb-3 small"></div>
                     <div class="table-responsive">
                         <table class="table table-hover align-middle">
                             <thead class="table-light">
@@ -1448,45 +1457,6 @@ form .btn-lg{min-height:46px;font-size:clamp(.82rem,.15vw + .78rem,.94rem)!impor
                                 </td></tr>
                             </tbody>
                         </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- MODAL LOGIN & FORM PENGELOLAAN AGENDA PENGURUS -->
-            <div class="modal fade" id="modalAgendaAdmin" tabindex="-1" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered modal-lg">
-                    <div class="modal-content border-0 shadow-lg" style="border-radius:18px;overflow:hidden;">
-                        <div class="modal-header bg-success text-white">
-                            <div>
-                                <h5 class="modal-title fw-bold"><i class="fa-solid fa-user-shield me-2"></i>Panel Pengurus Agenda RW. 06</h5>
-                                <small class="opacity-75">Khusus Pengurus RW / RT</small>
-                            </div>
-                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Tutup"></button>
-                        </div>
-                        <div class="modal-body p-4">
-                            <div id="agendaAdminAlert"></div>
-                            <div id="agendaLoginPanel">
-                                <div class="alert alert-info"><i class="fa-solid fa-circle-info me-2"></i>Masukkan nama pengurus dan password untuk mengelola agenda.</div>
-                                <div class="mb-3"><label class="form-label">Nama Pengurus</label><input type="text" class="form-control" id="agendaAdminName" maxlength="100" placeholder="Contoh: Ketua RW 06 / Ketua RT 01" autocomplete="name"></div>
-                                <div class="mb-3"><label class="form-label">Password</label><input type="password" class="form-control" id="agendaAdminPassword" placeholder="Masukkan password" autocomplete="current-password"></div>
-                                <button class="btn btn-success w-100" type="button" onclick="loginAgendaAdmin()"><i class="fa-solid fa-right-to-bracket me-2"></i>Masuk sebagai Pengurus</button>
-                            </div>
-                            <div id="agendaAdminPanel" class="d-none">
-                                <div class="d-flex justify-content-between align-items-center mb-3"><div class="small text-success fw-bold"><i class="fa-solid fa-circle-check me-1"></i><span id="agendaLoggedName"></span></div><button class="btn btn-sm btn-outline-danger" type="button" onclick="logoutAgendaAdmin()"><i class="fa-solid fa-right-from-bracket me-1"></i>Keluar</button></div>
-                                <form id="formAgendaAdmin" onsubmit="saveAgendaAdmin(event)">
-                                    <input type="hidden" id="agendaEditId">
-                                    <div class="row g-3">
-                                        <div class="col-md-4"><label class="form-label">Tanggal *</label><input type="date" class="form-control" id="agendaAdminTanggal" required></div>
-                                        <div class="col-md-4"><label class="form-label">Waktu *</label><input type="time" class="form-control" id="agendaAdminWaktu" required></div>
-                                        <div class="col-md-4"><label class="form-label">Kegiatan *</label><input type="text" class="form-control" id="agendaAdminKegiatan" maxlength="150" required></div>
-                                        <div class="col-md-6"><label class="form-label">Lokasi</label><input type="text" class="form-control" id="agendaAdminLokasi" maxlength="150"></div>
-                                        <div class="col-md-6"><label class="form-label">Keterangan</label><input type="text" class="form-control" id="agendaAdminKeterangan" maxlength="250"></div>
-                                    </div>
-                                    <div class="d-flex flex-wrap gap-2 mt-4"><button class="btn btn-success" type="submit"><i class="fa-solid fa-floppy-disk me-1"></i><span id="agendaSaveLabel">Simpan Agenda</span></button><button class="btn btn-outline-secondary" type="button" onclick="resetAgendaAdminForm()"><i class="fa-solid fa-rotate-left me-1"></i>Form Baru</button></div>
-                                </form>
-                                <hr><h6 class="fw-bold"><i class="fa-solid fa-list-check me-2"></i>Agenda yang ditambahkan pengurus</h6><div id="agendaAdminList" class="list-group small"></div>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -1868,7 +1838,7 @@ form .btn-lg{min-height:46px;font-size:clamp(.82rem,.15vw + .78rem,.94rem)!impor
          * Contoh:
          * https://script.google.com/macros/s/XXXXXXXX/exec
          */
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby2Wiz4Or_q2jDs0gM3mzOh8TnoOYPPVtXi4GLV_1Q8H6i8J9hjRiyhUnqumyk7CPabmg/exec";
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbywWPyhVMWcBsfztbv4XM0iOZOKwjYWxvDl-4d37Z8K07rHpw3I_TABFus0lOyWPEVMOQ/exec";
 
         const RT_KEYS = ["RT01", "RT02", "RT03"];
         const CHART_LABELS = [
@@ -1946,6 +1916,7 @@ form .btn-lg{min-height:46px;font-size:clamp(.82rem,.15vw + .78rem,.94rem)!impor
             const query = new URLSearchParams({
                 action: action,
                 _: String(Date.now()),
+                token: localStorage.getItem('rw06_auth_token') || '',
                 ...params
             });
 
@@ -1990,7 +1961,7 @@ form .btn-lg{min-height:46px;font-size:clamp(.82rem,.15vw + .78rem,.94rem)!impor
                 headers: {
                     "Content-Type": "text/plain;charset=utf-8"
                 },
-                body: JSON.stringify(payload),
+                body: JSON.stringify(Object.assign({}, payload, {token: localStorage.getItem('rw06_auth_token') || payload.token || ''})),
                 redirect: "follow"
             });
 
@@ -2839,6 +2810,11 @@ form .btn-lg{min-height:46px;font-size:clamp(.82rem,.15vw + .78rem,.94rem)!impor
         // membuat kedua tab ini dinamis dari sheet Agenda/Berita.
 
         document.addEventListener("DOMContentLoaded", async function() {
+            const authReady = await restoreMultiUserSession();
+            if (!authReady) {
+                updateDatabaseStatus("offline", "Silakan login Multi User untuk mengakses database warga.");
+                return;
+            }
             updateDatabaseStatus("checking");
 
             try {
@@ -3472,7 +3448,12 @@ form .btn-lg{min-height:46px;font-size:clamp(.82rem,.15vw + .78rem,.94rem)!impor
             updateDatabaseStatus("checking");
 
             try {
-                await apiGet("getData");
+                // getData dilindungi login. Sebelum login gunakan health check.
+                const action = authToken() ? "getData" : "health";
+                const result = await apiGet(action);
+                if (!result || result.status !== "success") {
+                    throw new Error(result?.message || "Respons database tidak valid.");
+                }
                 updateDatabaseStatus("online");
                 return true;
             } catch (error) {
@@ -3680,36 +3661,108 @@ form .btn-lg{min-height:46px;font-size:clamp(.82rem,.15vw + .78rem,.94rem)!impor
     </script>
 
 
-    <!-- PENGELOLAAN AGENDA PENGURUS RW/RT -->
-    <script>
-        const AGENDA_ADMIN_PASSWORD = "P455word";
-        const AGENDA_LOCAL_KEY = "rw06_agenda_pengurus_v1";
-        let agendaAdminLoggedIn = false;
-        function getLocalAdminAgendas(){try{return JSON.parse(localStorage.getItem(AGENDA_LOCAL_KEY)||"[]")}catch(e){return[]}}
-        function setLocalAdminAgendas(items){localStorage.setItem(AGENDA_LOCAL_KEY,JSON.stringify(items))}
-        function formatAgendaDate(value){if(!value)return "-";const d=new Date(value+"T00:00:00");return Number.isNaN(d.getTime())?value:d.toLocaleDateString("id-ID",{day:"2-digit",month:"long",year:"numeric"})}
-        function openAgendaAdminLogin(){const m=bootstrap.Modal.getOrCreateInstance(document.getElementById("modalAgendaAdmin"));document.getElementById("agendaAdminAlert").innerHTML="";agendaAdminLoggedIn?showAgendaAdminPanel():showAgendaLoginPanel();m.show()}
-        function showAgendaLoginPanel(){document.getElementById("agendaLoginPanel").classList.remove("d-none");document.getElementById("agendaAdminPanel").classList.add("d-none");setTimeout(()=>document.getElementById("agendaAdminName")?.focus(),250)}
-        function showAgendaAdminPanel(){document.getElementById("agendaLoginPanel").classList.add("d-none");document.getElementById("agendaAdminPanel").classList.remove("d-none");document.getElementById("agendaLoggedName").textContent=sessionStorage.getItem("rw06_agenda_admin_name")||"Pengurus";renderAdminAgendaList()}
-        function loginAgendaAdmin(){const name=document.getElementById("agendaAdminName").value.trim(),password=document.getElementById("agendaAdminPassword").value,alertEl=document.getElementById("agendaAdminAlert");if(!name){alertEl.innerHTML='<div class="alert alert-warning">Nama pengurus wajib diisi.</div>';return}if(password!==AGENDA_ADMIN_PASSWORD){alertEl.innerHTML='<div class="alert alert-danger"><i class="fa-solid fa-lock me-2"></i>Password salah.</div>';return}agendaAdminLoggedIn=true;sessionStorage.setItem("rw06_agenda_admin_name",name);document.getElementById("agendaAdminPassword").value="";alertEl.innerHTML='<div class="alert alert-success">Login berhasil. Silakan tambah atau kelola agenda.</div>';showAgendaAdminPanel();updateAgendaAdminStatus()}
-        function logoutAgendaAdmin(){agendaAdminLoggedIn=false;sessionStorage.removeItem("rw06_agenda_admin_name");resetAgendaAdminForm();showAgendaLoginPanel();updateAgendaAdminStatus()}
-        function updateAgendaAdminStatus(){const el=document.getElementById("agenda-admin-status");if(!el)return;if(agendaAdminLoggedIn){el.className="alert alert-success border py-2 px-3 mb-3 small";el.innerHTML='<i class="fa-solid fa-user-shield me-1"></i>Mode Pengurus aktif: <strong>'+escapeHtml(sessionStorage.getItem("rw06_agenda_admin_name")||"Pengurus")+'</strong>. Agenda baru tersimpan pada perangkat ini.'}else el.classList.add("d-none")}
-        function saveAgendaAdmin(event){event.preventDefault();if(!agendaAdminLoggedIn){alert("Silakan login sebagai Pengurus terlebih dahulu.");return}const id=document.getElementById("agendaEditId").value||(Date.now()+"");const item={id,tanggal:document.getElementById("agendaAdminTanggal").value,waktu:document.getElementById("agendaAdminWaktu").value,kegiatan:document.getElementById("agendaAdminKegiatan").value.trim(),lokasi:document.getElementById("agendaAdminLokasi").value.trim(),keterangan:document.getElementById("agendaAdminKeterangan").value.trim(),dibuatOleh:sessionStorage.getItem("rw06_agenda_admin_name")||"Pengurus"};const items=getLocalAdminAgendas(),idx=items.findIndex(x=>String(x.id)===String(id));if(idx>=0)items[idx]=item;else items.push(item);items.sort((a,b)=>String(a.tanggal).localeCompare(String(b.tanggal))||String(a.waktu).localeCompare(String(b.waktu)));setLocalAdminAgendas(items);resetAgendaAdminForm();renderAdminAgendaList();loadAgendaBerita();document.getElementById("agendaAdminAlert").innerHTML='<div class="alert alert-success"><i class="fa-solid fa-circle-check me-2"></i>Agenda berhasil disimpan.</div>'}
-        function resetAgendaAdminForm(){const form=document.getElementById("formAgendaAdmin");if(form)form.reset();document.getElementById("agendaEditId").value="";document.getElementById("agendaSaveLabel").textContent="Simpan Agenda"}
-        function editLocalAgenda(id){const item=getLocalAdminAgendas().find(x=>String(x.id)===String(id));if(!item)return;document.getElementById("agendaEditId").value=item.id;document.getElementById("agendaAdminTanggal").value=item.tanggal||"";document.getElementById("agendaAdminWaktu").value=item.waktu||"";document.getElementById("agendaAdminKegiatan").value=item.kegiatan||"";document.getElementById("agendaAdminLokasi").value=item.lokasi||"";document.getElementById("agendaAdminKeterangan").value=item.keterangan||"";document.getElementById("agendaSaveLabel").textContent="Perbarui Agenda"}
-        function deleteLocalAgenda(id){if(!confirm("Hapus agenda ini?"))return;setLocalAdminAgendas(getLocalAdminAgendas().filter(x=>String(x.id)!==String(id)));renderAdminAgendaList();loadAgendaBerita()}
-        function renderAdminAgendaList(){const el=document.getElementById("agendaAdminList");if(!el)return;const items=getLocalAdminAgendas();if(!items.length){el.innerHTML='<div class="text-muted py-2">Belum ada agenda tambahan dari pengurus.</div>';return}el.innerHTML=items.map(item=>'<div class="list-group-item d-flex flex-wrap justify-content-between align-items-center gap-2"><div><strong>'+escapeHtml(formatAgendaDate(item.tanggal))+' '+escapeHtml(item.waktu||"")+'</strong><br>'+escapeHtml(item.kegiatan||"-")+' · '+escapeHtml(item.lokasi||"-")+'<br><span class="text-muted">'+escapeHtml(item.keterangan||"")+' · oleh '+escapeHtml(item.dibuatOleh||"Pengurus")+'</span></div><div class="d-flex gap-1"><button class="btn btn-sm btn-outline-primary" type="button" onclick="editLocalAgenda('+JSON.stringify(String(item.id))+')"><i class="fa-solid fa-pen"></i></button><button class="btn btn-sm btn-outline-danger" type="button" onclick="deleteLocalAgenda('+JSON.stringify(String(item.id))+')"><i class="fa-solid fa-trash"></i></button></div></div>').join("")}
-        const _originalRenderAgenda = renderAgenda;
-        renderAgenda=function(items){_originalRenderAgenda((Array.isArray(items)?items:[]).concat(getLocalAdminAgendas()))};
-        document.addEventListener("DOMContentLoaded",function(){if(sessionStorage.getItem("rw06_agenda_admin_name"))agendaAdminLoggedIn=true;updateAgendaAdminStatus()});
-    </script>
 
-    <!-- FOOTER -->
+<!-- MULTI USER LOGIN -->
+<div class="modal fade" id="multiUserLoginModal" tabindex="-1" aria-hidden="true">
+ <div class="modal-dialog modal-dialog-centered">
+  <div class="modal-content border-0 shadow-lg" style="border-radius:22px;overflow:hidden">
+   <div class="modal-header border-0 pb-0"><h5 class="modal-title fw-bold"><i class="fa-solid fa-users-gear text-primary me-2"></i>Login Multi User RW 06</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+   <div class="modal-body p-4">
+    <div class="auth-modal-icon mb-3"><i class="fa-solid fa-shield-halved"></i></div>
+    <div id="multiUserAlert" class="mb-3"></div>
+    <form onsubmit="loginMultiUser(event)">
+      <div class="mb-3"><label class="form-label">Username</label><input id="multiUsername" class="form-control" autocomplete="username" required placeholder="Username pengurus"></div>
+      <div class="mb-3"><label class="form-label">Password</label><input id="multiPassword" type="password" class="form-control" autocomplete="current-password" required placeholder="Password"></div>
+      <button class="btn btn-primary w-100" type="submit"><i class="fa-solid fa-right-to-bracket me-2"></i>Masuk</button>
+    </form>
+    <div class="small text-muted mt-3 text-center">Akun dan hak akses diverifikasi langsung melalui Google Spreadsheet.</div>
+   </div>
+  </div>
+ </div>
+</div>
+
+<!-- USER MANAGEMENT -->
+<div class="modal fade" id="userManagementModal" tabindex="-1" aria-hidden="true">
+ <div class="modal-dialog modal-lg modal-dialog-centered"><div class="modal-content border-0 shadow-lg" style="border-radius:22px;overflow:hidden">
+  <div class="modal-header"><h5 class="modal-title fw-bold"><i class="fa-solid fa-user-shield text-primary me-2"></i>Manajemen User</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+  <div class="modal-body">
+   <form onsubmit="saveMultiUser(event)" class="row g-2 mb-3">
+    <div class="col-md-3"><input id="newUserUsername" class="form-control" placeholder="username" required></div>
+    <div class="col-md-3"><input id="newUserName" class="form-control" placeholder="Nama pengurus" required></div>
+    <div class="col-md-2"><select id="newUserRole" class="form-select" onchange="toggleNewUserRT()" required><option value="RT01">RT 01</option><option value="RT02">RT 02</option><option value="RT03">RT 03</option><option value="ADMIN">ADMIN</option></select></div>
+    <div class="col-md-2" id="newUserRtWrap"><select id="newUserRT" class="form-select"><option value="RT01">RT 01</option><option value="RT02">RT 02</option><option value="RT03">RT 03</option></select></div>
+    <div class="col-md-2"><input id="newUserPassword" type="password" class="form-control" placeholder="password" required></div>
+    <div class="col-12"><button class="btn btn-primary"><i class="fa-solid fa-user-plus me-1"></i>Tambah User</button></div>
+   </form>
+   <div class="table-responsive"><table class="table align-middle"><thead class="table-light"><tr><th>Username</th><th>Nama</th><th>Role</th><th>RT</th><th>Status</th><th></th></tr></thead><tbody id="multiUserTable"><tr><td colspan="6" class="text-center text-muted">Memuat...</td></tr></tbody></table></div>
+  </div>
+ </div></div>
+</div>
+<!-- FOOTER -->
     <footer class="site-footer">
         <i class="fa-regular fa-copyright"></i> Copyright 2026 GusPur C5/17
     </footer>
 
-    <!-- JS BOOTSTRAP BUNDLE -->
+    <script>
+// ===================== MULTI USER CLIENT =====================
+let rw06AuthUser = null;
+function authToken(){ return localStorage.getItem('rw06_auth_token') || ''; }
+function openMultiUserLogin(){ const el=document.getElementById('multiUserLoginModal'); if(el) bootstrap.Modal.getOrCreateInstance(el).show(); }
+function setMultiUserUI(user){
+  rw06AuthUser=user||null;
+  const badge=document.getElementById('multiUserBadge'), label=document.getElementById('multiUserLabel'), login=document.getElementById('multiUserLoginBtn'), logout=document.getElementById('multiUserLogoutBtn'), manage=document.getElementById('multiUserManageBtn');
+  if(user){ badge.style.display='inline-flex'; label.textContent=(user.nama||user.username)+' • '+(user.role==='ADMIN'?'RW 06':user.rt_name); login.classList.add('d-none'); logout.classList.remove('d-none'); if(user.role==='ADMIN') manage.classList.remove('d-none'); else manage.classList.add('d-none'); }
+  else { badge.style.display='none'; login.classList.remove('d-none'); logout.classList.add('d-none'); manage.classList.add('d-none'); }
+  document.querySelectorAll('[data-auth-role]').forEach(el=>{ const roles=(el.dataset.authRole||'').split(','); el.style.display=(user && roles.includes(user.role))?'':'none'; });
+  document.querySelectorAll('[data-auth-rt]').forEach(el=>{ const rt=el.dataset.authRt; el.style.display=(user && (user.role==='ADMIN'||user.rt_name===rt))?'':'none'; });
+}
+async function loginMultiUser(e){
+  e.preventDefault(); const alertEl=document.getElementById('multiUserAlert'); alertEl.innerHTML='<div class="alert alert-info">Memverifikasi ke database...</div>';
+  try{
+    const username=document.getElementById('multiUsername').value.trim(), password=document.getElementById('multiPassword').value;
+    const res=await apiGet('login',{username,password});
+    if(!res || res.status!=='success') throw new Error(res?.message||'Login gagal.');
+    localStorage.setItem('rw06_auth_token',res.token); setMultiUserUI(res.user);
+    bootstrap.Modal.getInstance(document.getElementById('multiUserLoginModal'))?.hide();
+    document.getElementById('multiPassword').value='';
+    await loadSpreadsheetData();
+    alert('Login berhasil. Selamat datang, '+res.user.nama+'.');
+  }catch(err){ alertEl.innerHTML='<div class="alert alert-danger">'+escapeHtml(err.message)+'</div>'; }
+}
+async function restoreMultiUserSession(){
+  const token=authToken(); if(!token){ setMultiUserUI(null); return false; }
+  try{ const res=await apiGet('validateSession'); if(res.status!=='success') throw new Error(res.message||'Sesi tidak valid'); setMultiUserUI(res.user); return true; }
+  catch(e){ localStorage.removeItem('rw06_auth_token'); setMultiUserUI(null); return false; }
+}
+async function logoutMultiUser(){
+  try{ await apiPost({action:'logout'}); }catch(e){}
+  localStorage.removeItem('rw06_auth_token'); setMultiUserUI(null); location.reload();
+}
+async function openUserManagement(){
+  if(!rw06AuthUser || rw06AuthUser.role!=='ADMIN'){ alert('Hanya Admin RW 06 yang dapat mengelola user.'); return; }
+  bootstrap.Modal.getOrCreateInstance(document.getElementById('userManagementModal')).show(); await loadMultiUsers();
+}
+async function loadMultiUsers(){
+  const body=document.getElementById('multiUserTable'); body.innerHTML='<tr><td colspan="6" class="text-center text-muted">Memuat...</td></tr>';
+  try{ const res=await apiGet('getUsers'); body.innerHTML=(res.users||[]).map(u=>`<tr><td><b>${escapeHtml(u.username)}</b></td><td>${escapeHtml(u.nama)}</td><td><span class="role-chip">${escapeHtml(u.role)}</span></td><td>${escapeHtml(u.rt_name||'RW 06')}</td><td>${u.active==='Ya'?'<span class="badge bg-success">Aktif</span>':'<span class="badge bg-secondary">Nonaktif</span>'}</td><td>${u.username!=='adminrw06'&&u.active==='Ya'?`<button class="btn btn-sm btn-outline-danger" onclick="disableMultiUser('${escapeHtml(u.username)}')"><i class="fa-solid fa-user-slash"></i></button>`:''}</td></tr>`).join('')||'<tr><td colspan="6" class="text-center">Belum ada user.</td></tr>'; }
+  catch(e){ body.innerHTML='<tr><td colspan="6" class="text-danger">'+escapeHtml(e.message)+'</td></tr>'; }
+}
+function toggleNewUserRT(){ document.getElementById('newUserRtWrap').style.display=document.getElementById('newUserRole').value==='ADMIN'?'none':''; }
+async function saveMultiUser(e){ e.preventDefault(); try{ const res=await apiPost({action:'saveUser',username:document.getElementById('newUserUsername').value.trim(),nama:document.getElementById('newUserName').value.trim(),role:document.getElementById('newUserRole').value,rt_name:document.getElementById('newUserRT').value,password:document.getElementById('newUserPassword').value}); if(res.status!=='success') throw new Error(res.message||'Gagal'); e.target.reset(); toggleNewUserRT(); await loadMultiUsers(); alert('User berhasil ditambahkan ke database.'); }catch(err){ alert(err.message); } }
+async function disableMultiUser(username){ if(!confirm('Nonaktifkan user '+username+'?')) return; try{ const res=await apiPost({action:'deleteUser',username}); if(res.status!=='success') throw new Error(res.message||'Gagal'); await loadMultiUsers(); }catch(e){ alert(e.message); } }
+
+document.addEventListener('DOMContentLoaded', function(){
+  // Guard tambahan: menu yang membutuhkan database akan membuka login jika belum autentikasi.
+  document.querySelectorAll('[data-requires-login]').forEach(el=>{
+    if (el.dataset.loginGuardBound === '1') return;
+    el.dataset.loginGuardBound = '1';
+    el.addEventListener('click', function(ev){
+      if (!rw06AuthUser) { ev.preventDefault(); openMultiUserLogin(); }
+    });
+  });
+});
+</script>
+<!-- JS BOOTSTRAP BUNDLE -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
